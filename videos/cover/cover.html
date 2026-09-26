@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Golden Code Cover</title>
+<link rel="stylesheet" href="../golden-code-ad/fonts/fonts.css">
+<script src="../thahabi-intro/robot.js"></script>
+<style>
+  /* Facebook cover 1640x624. Mobile shows only the middle ~1110px (x 265..1375): keep content there. */
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1640px;height:624px;overflow:hidden;background:#070605}
+  body{font-family:'Cairo',sans-serif;color:#f6efe0}
+  #c{position:relative;width:1640px;height:624px;overflow:hidden;
+     background:radial-gradient(circle at 33% 45%,rgba(245,197,66,.30),transparent 38%),
+                radial-gradient(circle at 85% 110%,rgba(180,110,20,.22),transparent 45%),#070605}
+  #grid{position:absolute;inset:0;background-image:linear-gradient(rgba(245,197,66,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(245,197,66,.16) 1px,transparent 1px);background-size:52px 52px;opacity:.35;
+        -webkit-mask-image:radial-gradient(ellipse 60% 80% at 35% 50%,#000 10%,transparent 75%)}
+  .abs{position:absolute}
+  .goldtxt{background:linear-gradient(180deg,#fff3c4 0%,#F5C542 45%,#b8860b 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .mono{font-family:'JetBrains Mono',monospace;direction:ltr}
+  .glyph{position:absolute;font-family:'JetBrains Mono',monospace;font-weight:700;color:#F5C542}
+
+  #text{position:absolute;right:285px;top:0;bottom:0;width:600px;display:flex;flex-direction:column;justify-content:center}
+  .kicker{display:inline-flex;align-self:flex-start;align-items:center;gap:10px;font-size:22px;font-weight:800;color:#F5C542;
+          border:1.5px solid rgba(245,197,66,.45);border-radius:999px;padding:5px 20px;background:rgba(26,21,13,.8)}
+  .kicker i{width:9px;height:9px;border-radius:50%;background:#7ee0a1;box-shadow:0 0 10px #7ee0a1}
+  h1{font-family:'Lalezar','Cairo';font-weight:400;font-size:92px;line-height:1.1;margin-top:16px;white-space:nowrap}
+  h1 span.w{color:#fff}
+  .tag{font-size:31px;font-weight:700;color:#d8ccb2;margin-top:8px}
+  .tag b{color:#F5C542;font-weight:900}
+  .line{height:2px;width:120px;margin:22px 0 20px;background:linear-gradient(90deg,transparent,#F5C542)}
+  .stats{display:flex;gap:34px;align-items:flex-end}
+  .st b{display:block;font-family:'JetBrains Mono';font-size:42px;font-weight:700;line-height:1}
+  .st span{font-size:19px;font-weight:700;color:#9b8e74}
+  .sep{width:1.5px;height:46px;background:rgba(245,197,66,.3)}
+
+  #bot{position:absolute;left:350px;top:100px;width:340px;height:444px}
+  #bot svg{width:100%;height:100%}
+  .pill{position:absolute;font-family:'JetBrains Mono';font-weight:700;font-size:21px;direction:ltr;color:#F5C542;
+        padding:6px 16px;border-radius:14px;background:rgba(20,16,10,.9);border:1.5px solid rgba(245,197,66,.4);box-shadow:0 10px 30px rgba(0,0,0,.5)}
+  .pill em{font-style:normal;color:#9b8e74;font-weight:500}
+  #bubble{position:absolute;left:560px;top:70px;padding:10px 22px;border-radius:22px 22px 22px 6px;font-size:24px;font-weight:800;
+          background:linear-gradient(180deg,#ffd970,#d9a21c);color:#1a1205;box-shadow:0 0 40px rgba(245,197,66,.35)}
+</style>
+</head>
+<body>
+<div id="c">
+  <div id="grid"></div>
+  <div id="glyphs"></div>
+
+  <div id="bot"></div>
+  <div id="bubble">هلا بالذهبيين 👋</div>
+  <div class="pill" style="left:50px;top:150px">Flutter <em>/ mobile</em></div>
+  <div class="pill" style="left:40px;top:250px">Django <em>/ web</em></div>
+  <div class="pill" style="left:70px;top:350px">AI <em>/ agents</em></div>
+  <div class="pill" style="left:55px;top:450px">ESP32 <em>/ IoT</em></div>
+
+  <div id="text">
+    <div class="kicker"><i></i>من الموصل · نبرمج من 2019</div>
+    <h1><span class="w">مركز</span> <span class="goldtxt">الكود الذهبي</span></h1>
+    <div class="tag">نحوّل أفكارك إلى <b>تطبيقات وأنظمة ذكية</b></div>
+    <div class="line"></div>
+    <div class="stats">
+      <div class="st"><b class="goldtxt">+65</b><span>مشروع منجز</span></div><div class="sep"></div>
+      <div class="st"><b class="goldtxt">8</b><span>مجالات تقنية</span></div><div class="sep"></div>
+      <div class="st"><b class="goldtxt">24/7</b><span>يديرها وكيل ذكي 🤖</span></div>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('bot').innerHTML=robot('A','happy',{id:'cv',wave:135,waveL:-8,bulb:1});
+const G=['{ }','</>','01','=>','//','fn()','AI','#'];let h='';
+[[40,60],[40,540],[1460,80],[1540,380],[1400,540],[1250,40],[780,570],[330,20]].forEach(([x,y],i)=>{
+  h+=`<div class="glyph" style="left:${x}px;top:${y}px;font-size:${26+(i%3)*10}px;opacity:${.08+(i%4)*.03}">${G[i%G.length]}</div>`;});
+document.getElementById('glyphs').innerHTML=h;
+</script>
+</body>
+</html>
