@@ -2,136 +2,309 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@500;700&family=IBM+Plex+Sans:wght@700&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@500;700&display=block" rel="stylesheet">
 <style>
 @font-face{font-family:'PlexDigits';font-weight:700;src:url(plex-digits.woff2)}
-:root{--g:#1fa37a;--g2:#6fd3ae;--ink:#141414;--red:#f0564a;--blue:#3f5bd9;--yel:#ffc53d;--pink:#ff4f8b}
+@property --n{syntax:'<integer>';initial-value:0;inherits:false}
+:root{--g:#1fa37a;--g2:#6fd3ae;--gd:#0d3b2e;--ink:#141414;--red:#f0564a;--blue:#3f5bd9;--yel:#ffc53d;--pink:#ff4f8b;--num:'PlexDigits','DejaVu Sans',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:1080px;height:1920px;overflow:hidden;background:#f8f7f2;font-family:'IBM Plex Sans Arabic',sans-serif;color:var(--ink)}
-#stage{position:relative;width:1080px;height:1920px;overflow:hidden;
-  background:radial-gradient(circle,#dcdcd4 2px,transparent 2.5px) 0 0/44px 44px,#f8f7f2}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:radial-gradient(circle,#dcdcd4 2px,transparent 2.5px) 0 0/44px 44px,#f8f7f2}
 .blob{position:absolute;border-radius:50%;filter:blur(90px)}
-.b1{width:760px;height:760px;right:-200px;top:-80px;background:#9ee0c6;opacity:.75;animation:drift 26s ease-in-out both}
-.b2{width:720px;height:720px;left:-220px;bottom:120px;background:#ffe3a3;opacity:.8;animation:drift2 26s ease-in-out both}
-@keyframes drift{to{transform:translate(-120px,160px) scale(1.1)}}
-@keyframes drift2{to{transform:translate(140px,-120px) scale(1.15)}}
-#bar{position:absolute;top:0;left:0;height:10px;background:var(--g);animation:bar 25.8s linear both;transform-origin:right}
-@keyframes bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-#bar{width:100%}
-.tag{position:absolute;top:60px;left:60px;font-weight:700;font-size:26px;font-family:sans-serif;letter-spacing:4px;color:#8d8d86}
+.b1{width:760px;height:760px;right:-200px;top:-80px;background:#9ee0c6;opacity:.75;animation:drift 34s ease-in-out both}
+.b2{width:720px;height:720px;left:-220px;bottom:120px;background:#ffe3a3;opacity:.8;animation:drift2 34s ease-in-out both}
+@keyframes drift{50%{transform:translate(-160px,220px) scale(1.15)}}
+@keyframes drift2{50%{transform:translate(160px,-160px) scale(1.2)}}
+#bar{position:absolute;z-index:50;top:0;left:0;width:100%;height:10px;background:var(--g);transform-origin:right;animation:bar var(--T) linear both}
+@keyframes bar{from{transform:scaleX(0)}}
+.tag{position:absolute;z-index:50;top:60px;left:60px;font:700 26px sans-serif;letter-spacing:4px;color:#8d8d86}
 .tag:after{content:'';display:block;width:60px;height:5px;background:var(--g);margin-top:14px;border-radius:3px}
-.sig{position:absolute;bottom:50px;right:60px;font-size:24px;color:#aaa}
 
-.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;
-  opacity:0;animation:scene var(--d) linear var(--s) both}
-@keyframes scene{0%{opacity:0;filter:blur(18px);transform:scale(1.04)}7%{opacity:1;filter:blur(0);transform:scale(1)}
-  90%{opacity:1;filter:blur(0)}100%{opacity:0;filter:blur(22px);transform:scale(.97)}}
+/* floating ambient particles */
+.amb{position:absolute;opacity:.55;animation:float 7s ease-in-out infinite alternate}
+@keyframes float{to{transform:translate(30px,-80px) rotate(160deg)}}
+
+/* scenes + camera */
+.scene{position:absolute;inset:0;opacity:0;animation:var(--in,sc-a) var(--d) linear var(--s) both}
+.cam{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:44px;animation:push var(--d) linear var(--s) both}
+@keyframes push{from{transform:scale(1)}to{transform:scale(1.08)}}
+@keyframes sc-a{0%{opacity:0;filter:blur(20px);transform:scale(1.15)}7%{opacity:1;filter:blur(0);transform:none}91%{opacity:1;filter:blur(0);transform:none}100%{opacity:0;filter:blur(24px);transform:scale(.9)}}
+@keyframes sc-b{0%{opacity:0;transform:translateY(500px) rotate(4deg);filter:blur(16px)}8%{opacity:1;transform:none;filter:blur(0)}92%{opacity:1;transform:none;filter:blur(0)}100%{opacity:0;transform:translateX(-700px);filter:blur(30px)}}
+@keyframes sc-c{0%{opacity:0;transform:translateX(700px);filter:blur(30px)}8%{opacity:1;transform:none;filter:blur(0)}92%{opacity:1;transform:none;filter:blur(0)}100%{opacity:0;transform:scale(1.6);filter:blur(30px)}}
+@keyframes sc-d{0%{opacity:0}.5%{opacity:1;filter:blur(0)}92%{opacity:1;transform:none;filter:blur(0)}100%{opacity:0;transform:scale(.7) rotate(-6deg);filter:blur(20px)}}
+
+/* colored full-screen backdrop revealed by a circle wipe */
+.wipe{position:absolute;inset:0;clip-path:circle(0 at 50% 50%);animation:wipe .7s cubic-bezier(.7,0,.3,1) var(--s) both}
+@keyframes wipe{to{clip-path:circle(75% at 50% 50%)}}
+.flash{position:absolute;inset:0;z-index:40;background:#fff;opacity:0;animation:flash .45s ease-out both;pointer-events:none}
+@keyframes flash{0%{opacity:0}15%{opacity:.95}100%{opacity:0}}
+
+/* kinetic words */
+.w{display:inline-block;animation:wordIn .5s cubic-bezier(.2,1.6,.4,1) calc(var(--s) + var(--o)) both}
+@keyframes wordIn{from{opacity:0;transform:translateY(70px) scale(.5) rotate(-8deg);filter:blur(8px)}to{opacity:1;transform:none;filter:blur(0)}}
 .pop{animation:pop .6s cubic-bezier(.3,1.6,.5,1) calc(var(--s) + var(--o,0s)) both}
-@keyframes pop{from{opacity:0;transform:translateY(60px) scale(.6)}to{opacity:1;transform:none}}
-.type{animation:type .9s steps(20) calc(var(--s) + var(--o,0s)) both;clip-path:inset(0 0 0 100%)}
-@keyframes type{from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0 0 0 0)}}
-h1{font-weight:700;font-size:84px;line-height:1.35;text-align:center;padding:0 70px}
+@keyframes pop{from{opacity:0;transform:translateY(60px) scale(.5)}to{opacity:1;transform:none}}
+h1{font-weight:700;font-size:84px;line-height:1.4;text-align:center;padding:0 70px;position:relative}
 .hl{color:var(--g)}
-.big{font-weight:700;font-size:170px;color:var(--g2);line-height:1.1}
-.icon{width:250px;height:250px;border-radius:64px;background:var(--g);display:grid;place-items:center;
-  box-shadow:0 0 0 26px rgba(31,163,122,.12),0 30px 60px rgba(31,163,122,.35)}
-.icon svg{width:130px;height:130px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.price{font-weight:700;font-size:190px;font-family:'PlexDigits','DejaVu Sans';color:var(--g);direction:ltr;position:relative}
-.strike:after{content:'';position:absolute;left:-20px;right:-20px;top:52%;height:16px;background:var(--red);border-radius:8px;
-  transform-origin:left;animation:strike .5s ease-out calc(var(--s) + 1.6s) both}
-@keyframes strike{from{transform:scaleX(0) rotate(-6deg)}to{transform:scaleX(1) rotate(-6deg)}}
-.sub{font-size:58px;font-weight:700}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:34px}
-.card{width:420px;height:330px;background:#fff;border-radius:44px;box-shadow:0 20px 50px rgba(0,0,0,.08);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;font-size:44px;font-weight:700}
-.card i{width:130px;height:130px;border-radius:36px;background:var(--g);display:grid;place-items:center}
-.card svg{width:72px;height:72px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.dash{width:900px;height:620px;background:#141a17;border-radius:44px;padding:40px;box-shadow:0 40px 80px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:40px}
+.mark{position:relative;display:inline-block;color:#fff;padding:0 26px}
+.mark:before{content:'';position:absolute;inset:8% -6px 4%;background:var(--g);border-radius:24px;z-index:-1;transform-origin:right;animation:sweep .45s ease-out calc(var(--s) + var(--o) + .25s) both}
+@keyframes sweep{from{transform:scaleX(0)}}
+.big{font-size:150px;line-height:1.2}
+.wiggle{animation:wordIn .5s cubic-bezier(.2,1.6,.4,1) calc(var(--s) + var(--o)) both,wig .5s ease-in-out calc(var(--s) + var(--o) + .5s) 2}
+@keyframes wig{25%{transform:rotate(-8deg) scale(1.15)}75%{transform:rotate(8deg) scale(1.15)}}
+
+/* S1 avatars orbit */
+.orbit{position:absolute;width:1000px;height:1000px;left:40px;top:460px;animation:spin var(--d) linear var(--s) both}
+@keyframes spin{to{transform:rotate(40deg)}}
+.av{position:absolute;width:120px;height:120px;border-radius:50%;display:grid;place-items:center;box-shadow:0 14px 30px rgba(0,0,0,.15);border:6px solid #fff}
+.av svg{width:64px;height:64px;fill:#fff}
+.pin{position:absolute;width:70px}
+
+/* S2 clock + busy pills */
+.clock{width:300px;height:300px;border-radius:80px;background:var(--g);position:relative;box-shadow:0 0 0 30px rgba(31,163,122,.12),0 30px 60px rgba(31,163,122,.35)}
+.clock:before{content:'';position:absolute;inset:50px;border:14px solid #fff;border-radius:50%}
+.hand{position:absolute;left:144px;bottom:150px;width:12px;border-radius:6px;background:#fff;transform-origin:50% 100%}
+.hm{height:80px;animation:spin2 var(--d) linear var(--s) both}.hh{height:55px;animation:spin3 var(--d) linear var(--s) both}
+@keyframes spin2{to{transform:rotate(1440deg)}}@keyframes spin3{to{transform:rotate(120deg)}}
+.chip{position:absolute;background:#fff;border-radius:40px;padding:22px 36px;font-size:40px;font-weight:700;box-shadow:0 16px 40px rgba(0,0,0,.1);display:flex;align-items:center;gap:16px;animation:chip .6s cubic-bezier(.2,1.5,.4,1) calc(var(--s) + var(--o)) both}
+.chip i{width:22px;height:22px;border-radius:50%}
+@keyframes chip{from{opacity:0;transform:translateX(var(--fx,300px)) scale(.6)}}
+
+/* S3 receipt */
+.receipt{width:720px;background:#fff;border-radius:36px 36px 0 0;padding:50px 60px 40px;box-shadow:0 30px 70px rgba(0,0,0,.12);position:relative;font-size:44px}
+.receipt:after{content:'';position:absolute;left:0;right:0;bottom:-30px;height:30px;background:linear-gradient(-45deg,transparent 22px,#fff 0) 0 0/44px 30px,linear-gradient(45deg,transparent 22px,#fff 0) 0 0/44px 30px}
+.row{display:flex;justify-content:space-between;padding:18px 0;border-bottom:3px dashed #e5e5e0;color:#666}
+.row b{font-family:var(--num);color:var(--ink)}
+.total{display:flex;justify-content:space-between;align-items:center;padding-top:26px;font-weight:700}
+.count{font-family:var(--num);font-weight:700;direction:ltr;animation:cnt var(--cd,1.2s) cubic-bezier(.2,.7,.3,1) calc(var(--s) + var(--o)) both;counter-reset:n var(--n)}
+.count:after{content:counter(n) var(--suf,'')}
+@keyframes cnt{from{--n:0}to{--n:var(--to)}}
+.t150{--to:150;--suf:',000';font-size:96px;color:var(--red);position:relative}
+.strike:before{content:'';position:absolute;left:-14px;right:-14px;top:50%;height:12px;background:var(--red);border-radius:6px;transform:rotate(-8deg);transform-origin:left;animation:strike .35s ease-out calc(var(--s) + 2.4s) both}
+@keyframes strike{from{transform:scaleX(0) rotate(-8deg)}}
+.stamp{position:absolute;top:-60px;left:-40px;border:10px solid var(--red);color:var(--red);font-size:80px;font-weight:700;padding:0 40px;border-radius:24px;transform:rotate(-14deg);background:rgba(255,255,255,.85);animation:stamp .4s cubic-bezier(.5,0,.6,1.4) calc(var(--s) + 2.6s) both}
+@keyframes stamp{from{opacity:0;transform:rotate(-14deg) scale(3)}}
+
+/* S4 solution */
+.rays{position:absolute;left:50%;top:50%;width:2600px;height:2600px;margin:-1300px;background:repeating-conic-gradient(rgba(255,255,255,.08) 0 10deg,transparent 10deg 20deg);animation:spin4 var(--d) linear var(--s) both}
+@keyframes spin4{to{transform:rotate(60deg)}}
+.solution{color:#fff}
+.badge{width:260px;height:260px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 0 0 30px rgba(255,255,255,.15),0 0 0 60px rgba(255,255,255,.08)}
+.badge svg{width:140px;height:140px;stroke:var(--g);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+
+/* S5 cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:34px;perspective:1600px}
+.card{width:430px;height:350px;background:#fff;border-radius:44px;box-shadow:0 20px 50px rgba(0,0,0,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;font-size:46px;font-weight:700;position:relative;
+  animation:flip .7s cubic-bezier(.2,1.3,.4,1) calc(var(--s) + var(--o)) both}
+@keyframes flip{from{opacity:0;transform:rotateY(-100deg) translateZ(-200px)}}
+.card i{width:140px;height:140px;border-radius:40px;background:var(--g);display:grid;place-items:center}
+.card svg{width:76px;height:76px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.check{position:absolute;top:-18px;left:-18px;width:78px;height:78px;border-radius:50%;background:var(--yel);display:grid;place-items:center;animation:check .4s cubic-bezier(.2,1.8,.4,1) calc(var(--s) + var(--o) + .45s) both}
+.check svg{width:44px;height:44px;stroke:#141414;stroke-width:3.5}
+@keyframes check{from{transform:scale(0) rotate(-90deg)}}
+
+/* S6 phone */
+.phone{width:520px;height:1000px;border-radius:80px;background:#111;padding:22px;box-shadow:0 50px 100px rgba(0,0,0,.3);position:relative}
+.screen{position:absolute;inset:22px;border-radius:60px;overflow:hidden;background:linear-gradient(160deg,#1fa37a,#0d3b2e 70%)}
+.screen .pill{position:absolute;top:40px;right:40px;background:rgba(255,255,255,.2);color:#fff;font-size:30px;padding:8px 24px;border-radius:30px}
+.screen .play{position:absolute;left:50%;top:40%;width:170px;height:170px;margin:-85px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center;animation:pulse 1s ease-in-out calc(var(--s) + .5s) 3}
+@keyframes pulse{50%{transform:scale(1.12)}}
+.screen .play:after{content:'';border-left:60px solid #fff;border-top:36px solid transparent;border-bottom:36px solid transparent;margin-left:14px}
+.screen .cap{position:absolute;bottom:170px;right:40px;left:40px;color:#fff;font-size:52px;font-weight:700}
+.screen .views{position:absolute;bottom:80px;right:40px;display:flex;align-items:center;gap:14px;color:#fff;font-size:44px}
+.v250{--to:250;--suf:'K';--cd:2.2s}
+.heart{position:absolute;bottom:90px;left:60px;width:70px;animation:heart 1.4s ease-out calc(var(--s) + var(--o)) 2 both}
+@keyframes heart{0%{opacity:0;transform:translateY(0) scale(.3)}15%{opacity:1;transform:scale(1.1)}100%{opacity:0;transform:translate(var(--hx),-600px) scale(.8)}}
+.notif{position:absolute;background:#fff;border-radius:34px;padding:22px 30px;box-shadow:0 20px 50px rgba(0,0,0,.15);display:flex;align-items:center;gap:20px;font-size:36px;font-weight:700;animation:chip .6s cubic-bezier(.2,1.5,.4,1) calc(var(--s) + var(--o)) both}
+.notif i{width:64px;height:64px;border-radius:20px;display:grid;place-items:center}
+.notif svg{width:36px;height:36px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round}
+
+/* S7 price */
+.dark{background:radial-gradient(circle at 50% 45%,#1a6b52,#0b2e24 70%)}
+.price{font-family:var(--num);font-weight:700;font-size:300px;line-height:1;color:#fff;direction:ltr;text-shadow:0 20px 60px rgba(0,0,0,.4);animation:slam .5s cubic-bezier(.5,0,.4,1.4) calc(var(--s) + var(--o)) both}
+@keyframes slam{from{opacity:0;transform:scale(4);filter:blur(12px)}}
+.shake{animation:shake .5s linear calc(var(--s) + var(--o)) both}
+@keyframes shake{10%,50%,90%{transform:translate(-18px,10px)}30%,70%{transform:translate(18px,-10px)}100%{transform:none}}
+.ring{position:absolute;left:50%;top:50%;width:400px;height:400px;margin:-200px;border-radius:50%;border:14px solid var(--yel);opacity:0;animation:ring 1s ease-out calc(var(--s) + var(--o)) both}
+@keyframes ring{0%{opacity:1;transform:scale(.3)}100%{opacity:0;transform:scale(3.2)}}
+.pillY{background:var(--yel);color:var(--ink);font-size:90px;font-weight:700;padding:10px 70px;border-radius:90px}
+.burst{position:absolute;left:50%;top:48%;width:34px;height:34px;border-radius:8px;opacity:0;animation:burst 1.3s cubic-bezier(.1,.8,.3,1) calc(var(--s) + var(--o)) both}
+@keyframes burst{0%{opacity:1;transform:translate(0,0) rotate(0)}80%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(540deg)}}
+.pre{color:#cfe9df;font-size:70px;font-weight:700}
+
+/* S8 dashboard */
+.dash{width:920px;height:700px;background:#141a17;border-radius:44px;padding:40px;box-shadow:0 40px 80px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:30px;position:relative}
 .dots{display:flex;gap:12px}.dots b{width:20px;height:20px;border-radius:50%;background:#f0564a}.dots b:nth-child(2){background:#ffc53d}.dots b:nth-child(3){background:#2ecf8f}
-.kp{display:flex;gap:26px}.kp div{flex:1;height:90px;border-radius:18px;background:#1f2723;padding:28px 26px}
-.kp span{display:block;height:26px;border-radius:13px}
-.bars{flex:1;display:flex;align-items:flex-end;gap:26px}
-.bars b{flex:1;background:#1e6b52;border-radius:14px 14px 6px 6px;transform-origin:bottom;animation:grow .7s ease-out both}
+.bars{flex:1;display:flex;align-items:flex-end;gap:24px;position:relative}
+.bars b{flex:1;background:#1e6b52;border-radius:14px 14px 6px 6px;transform-origin:bottom;animation:grow .6s cubic-bezier(.2,1.4,.4,1) calc(var(--s) + var(--o)) both}
 .bars b:last-child{background:#2ecf8f}
 @keyframes grow{from{transform:scaleY(0)}}
-.cta{background:var(--g);color:#fff;font-size:60px;font-weight:700;padding:34px 90px;border-radius:80px;box-shadow:0 25px 50px rgba(31,163,122,.4)}
-.red{color:var(--red)}
-.pulse{animation:pulse 1s ease-in-out calc(var(--s) + 1.2s) 3}
-@keyframes pulse{50%{transform:scale(1.08)}}
+.line{position:absolute;inset:40px 40px 40px 40px;top:120px}
+.line path{fill:none;stroke:var(--yel);stroke-width:10;stroke-linecap:round;stroke-dasharray:1400;animation:draw 1.2s ease-out calc(var(--s) + var(--o)) both}
+@keyframes draw{from{stroke-dashoffset:1400}to{stroke-dashoffset:0}}
+.up{position:absolute;top:-50px;left:-30px;background:var(--g);color:#fff;border-radius:40px;padding:14px 34px;font-size:64px;display:flex;gap:10px;align-items:center;box-shadow:0 20px 40px rgba(31,163,122,.4)}
+.p320{--to:320;--suf:'%';--cd:1.2s}
 
+/* S9 CTA */
+.cta{position:relative;background:var(--g);color:#fff;font-size:72px;font-weight:700;padding:40px 110px;border-radius:90px;box-shadow:0 25px 50px rgba(31,163,122,.45);display:flex;align-items:center;gap:26px;
+  animation:pop .6s cubic-bezier(.3,1.6,.5,1) calc(var(--s) + var(--o)) both,press .3s ease-in-out calc(var(--s) + var(--o) + 1.6s) both}
+@keyframes press{50%{transform:scale(.9)}}
+.cta svg{width:70px;height:70px;fill:#fff}
+.ripple{position:absolute;left:30%;top:60%;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.6);opacity:0;animation:rip .7s ease-out calc(var(--s) + 2.0s) both}
+@keyframes rip{0%{opacity:1;transform:scale(0)}100%{opacity:0;transform:scale(10)}}
+.cursor{position:absolute;width:120px;left:560px;top:1250px;animation:cur 1.1s cubic-bezier(.3,.8,.3,1) calc(var(--s) + 1.0s) both,click .3s ease-in-out calc(var(--s) + 2.1s) both}
+@keyframes cur{from{opacity:0;transform:translate(300px,500px)}}
+@keyframes click{50%{transform:scale(.8)}}
+.chev{display:flex;gap:10px}.chev b{width:40px;height:40px;border-left:12px solid var(--g);border-bottom:12px solid var(--g);transform:rotate(45deg);animation:chev .8s ease-in-out infinite}
+.chev b:nth-child(2){animation-delay:.15s}.chev b:nth-child(3){animation-delay:.3s}
+@keyframes chev{50%{opacity:.2}}
+.red{color:var(--red)}
 .c{position:absolute;animation:conf var(--d) ease-out var(--s) both}
-@keyframes conf{0%{opacity:0;transform:scale(0) rotate(-90deg)}8%{opacity:1;transform:scale(1.2) rotate(0)}14%{transform:scale(1)}
-  88%{opacity:1;transform:translateY(-30px) rotate(40deg)}100%{opacity:0;transform:translateY(-40px) scale(.4) rotate(60deg)}}
+@keyframes conf{0%{opacity:0;transform:scale(0) rotate(-90deg)}8%{opacity:1;transform:scale(1.2) rotate(0)}14%{transform:scale(1)}88%{opacity:1;transform:translateY(-40px) rotate(50deg)}100%{opacity:0;transform:translateY(-60px) scale(.3) rotate(80deg)}}
 </style>
 </head>
 <body>
 <div id="stage">
   <div class="blob b1"></div><div class="blob b2"></div>
+  <div id="amb"></div>
   <div id="bar"></div>
   <div class="tag">SPONSORED ADS</div>
-  <div id="confetti"></div>
 
-  <!-- 1 -->
-  <section class="scene" style="--s:0s;--d:3.2s">
-    <h1 class="type" style="--o:.2s">تريد مشروعك يوصل</h1>
-    <div class="big pop" style="--o:1.1s">لكل الناس؟</div>
-  </section>
-
-  <!-- 2 -->
-  <section class="scene" style="--s:3.2s;--d:3.2s">
-    <div class="icon pop" style="--o:.15s"><svg viewBox="0 0 24 24"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></div>
-    <h1 class="pop" style="--o:.6s">بس ما عندك <span class="hl">وقت</span><br>تسوي إعلان؟</h1>
-  </section>
-
-  <!-- 3 -->
-  <section class="scene" style="--s:6.4s;--d:3.9s">
-    <div class="price strike pop" style="--o:.2s;font-size:160px">150,000</div>
-    <div class="sub pop" style="--o:.7s">تكلفة فيديو إعلاني عادي</div>
-  </section>
-
-  <!-- 4 -->
-  <section class="scene" style="--s:10.3s;--d:6.3s">
-    <h1 class="pop" style="--o:.1s;font-size:76px">ويانا تحصل</h1>
-    <div class="grid">
-      <div class="card pop" style="--o:.9s"><i><svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/></svg></i>فيديو احترافي</div>
-      <div class="card pop" style="--o:2.0s"><i><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/></svg></i>إعلان ممول</div>
-      <div class="card pop" style="--o:3.1s"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.3"/><circle cx="12" cy="7.5" r="1.3"/><circle cx="16" cy="10" r="1.3"/></svg></i>بهوية براندك</div>
-      <div class="card pop" style="--o:4.2s"><i><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></i>تسليم سريع</div>
+  <!-- 1 hook -->
+  <section class="scene" data-i="0">
+    <div class="orbit" id="orbit"></div>
+    <div class="cam">
+      <h1 data-words="تريد مشروعك يوصل"></h1>
+      <h1 class="big"><span class="w mark" data-at="1.2">لكل الناس؟</span></h1>
     </div>
   </section>
 
-  <!-- 5 -->
-  <section class="scene" style="--s:16.6s;--d:3.2s">
-    <div class="sub pop" style="--o:.1s">كل هذا بس بـ</div>
-    <div class="price pop pulse" style="--o:.45s">2000</div>
-    <div class="big pop" style="--o:.8s;font-size:120px;color:var(--g)">دينار فقط!</div>
-  </section>
-
-  <!-- 6 -->
-  <section class="scene" style="--s:19.8s;--d:2.6s">
-    <div class="dash pop" style="--o:.1s">
-      <div class="dots"><b></b><b></b><b></b></div>
-      <div class="kp"><div><span style="background:#2ecf8f"></span></div><div><span style="background:#3f5bd9"></span></div><div><span style="background:#ffc53d"></span></div></div>
-      <div class="bars" id="bars"></div>
+  <!-- 2 no time -->
+  <section class="scene" data-i="1" style="--in:sc-b">
+    <div class="cam">
+      <div class="clock pop" style="--o:.1s"><div class="hand hh"></div><div class="hand hm"></div></div>
+      <h1><span data-words="بس ما عندك"></span> <span class="w hl wiggle" data-at=".75" style="font-size:110px">وقت</span><br><span data-words="تسوي إعلان؟" data-from="1.0"></span></h1>
     </div>
-    <h1 class="pop" style="--o:.6s;font-size:70px">وشوف <span class="hl">النتائج</span> بعينك</h1>
+    <div class="chip" style="top:330px;right:90px;--o:.5s"><i style="background:var(--red)"></i>مشغول</div>
+    <div class="chip" style="top:470px;left:90px;--o:.8s;--fx:-300px"><i style="background:var(--yel)"></i>اجتماعات</div>
+    <div class="chip" style="bottom:360px;right:130px;--o:1.1s"><i style="background:var(--blue)"></i>طلبات الزبائن</div>
+    <div class="chip" style="bottom:230px;left:120px;--o:1.4s;--fx:-300px"><i style="background:var(--pink)"></i>بيع ومتابعة</div>
   </section>
 
-  <!-- 7 -->
-  <section class="scene" style="--s:22.4s;--d:3.4s">
-    <h1 class="pop red" style="--o:.1s">لا تفوّت الفرصة!</h1>
-    <div class="cta pop pulse" style="--o:.5s">راسلنا هسه 👈</div>
+  <!-- 3 price problem -->
+  <section class="scene" data-i="2" style="--in:sc-c">
+    <div class="cam">
+      <h1 data-words="الفيديو الإعلاني العادي" style="font-size:70px"></h1>
+      <div class="receipt pop" style="--o:.3s">
+        <div class="row"><span>تصوير</span><b>60,000</b></div>
+        <div class="row"><span>مونتاج</span><b>50,000</b></div>
+        <div class="row"><span>تعديلات</span><b>40,000</b></div>
+        <div class="total"><span>المجموع</span><span class="count t150 strike" style="--o:.9s"></span></div>
+        <div class="stamp">غالي!</div>
+      </div>
+    </div>
   </section>
-  <div class="sig">إعلانك بـ 2000 دينار</div>
+
+  <!-- 4 solution -->
+  <section class="scene" data-i="3" style="--in:sc-d">
+    <div class="wipe" style="background:var(--g)"><div class="rays"></div></div>
+    <div class="cam solution">
+      <div class="badge pop" style="--o:.35s"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg></div>
+      <h1 data-words="لا تشيل هم،" data-from=".3" style="font-size:72px;color:#d9f5ea"></h1>
+      <h1 class="big"><span class="w" data-at=".9">ويانا</span> <span class="w" data-at="1.2" style="color:var(--yel)">الحل!</span></h1>
+    </div>
+  </section>
+
+  <!-- 5 features -->
+  <section class="scene" data-i="4" style="--in:sc-b">
+    <div class="cam">
+      <h1 data-words="نسويلك" style="font-size:80px"></h1>
+      <div class="grid">
+        <div class="card" data-at=".45"><span class="check"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10"/></svg></span><i><svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/></svg></i>فيديو احترافي</div>
+        <div class="card" data-at="1.55"><span class="check"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10"/></svg></span><i><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/></svg></i>إعلان ممول</div>
+        <div class="card" data-at="2.65"><span class="check"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10"/></svg></span><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.3"/><circle cx="12" cy="7.5" r="1.3"/><circle cx="16" cy="10" r="1.3"/></svg></i>بهوية براندك</div>
+        <div class="card" data-at="3.9"><span class="check"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5 9-10"/></svg></span><i><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></i>تسليم سريع</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 reach -->
+  <section class="scene" data-i="5" style="--in:sc-c">
+    <div class="cam" style="gap:50px">
+      <div class="phone pop" style="--o:.1s">
+        <div class="screen">
+          <div class="pill">ممول</div>
+          <div class="play"></div>
+          <div class="cap">إعلانك هنا</div>
+          <div class="views"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span class="count v250" style="--o:.5s"></span></div>
+          <div id="hearts"></div>
+        </div>
+      </div>
+      <h1 style="font-size:66px"><span data-words="يوصل لآلاف الناس"></span> <span class="w hl" data-at="1.6">كل يوم</span></h1>
+    </div>
+    <div class="notif" style="top:300px;right:40px;--o:.8s"><i style="background:var(--blue)"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6"/></svg></i>+1,200 متابع جديد</div>
+    <div class="notif" style="top:560px;left:30px;--o:1.3s;--fx:-300px"><i style="background:var(--g)"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></i>رسائل جديدة</div>
+    <div class="notif" style="top:830px;right:30px;--o:1.8s"><i style="background:var(--pink)"><svg viewBox="0 0 24 24"><path d="M3 3h2l2.4 12h11l2-8H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg></i>طلب جديد!</div>
+  </section>
+
+  <!-- 7 price reveal -->
+  <section class="scene" data-i="6" style="--in:sc-d">
+    <div class="wipe dark"><div class="rays"></div></div>
+    <div class="cam">
+      <div class="shake" id="shake" style="display:flex;flex-direction:column;align-items:center;gap:30px">
+        <div class="pre" data-words="وكل هذا بس بـ"></div>
+        <div class="price" id="slam">2000</div>
+        <div class="pillY pop" id="iqd">دينار فقط!</div>
+      </div>
+    </div>
+    <div id="rings"></div><div id="burst"></div>
+  </section>
+
+  <!-- 8 results -->
+  <section class="scene" data-i="7" style="--in:sc-a">
+    <div class="flash" style="animation-delay:var(--s)"></div>
+    <div class="cam">
+      <div class="dash pop" style="--o:.05s">
+        <div class="dots"><b></b><b></b><b></b></div>
+        <div class="bars" id="bars"></div>
+        <svg class="line" viewBox="0 0 840 460" preserveAspectRatio="none"><path d="M840 420 L720 380 L600 400 L480 300 L360 320 L240 200 L120 150 L20 30"/></svg>
+        <div class="up pop" style="--o:.6s"><span class="count p320" style="--o:.6s"></span><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M12 19V5M5 12l7-7 7 7"/></svg></div>
+      </div>
+      <h1 style="font-size:74px"><span data-words="وشوف"></span> <span class="w hl" data-at=".35">النتائج</span> <span class="w" data-at=".75">بعينك</span></h1>
+    </div>
+  </section>
+
+  <!-- 9 CTA -->
+  <section class="scene" data-i="8" style="--in:sc-b">
+    <div class="cam">
+      <h1 class="red" data-words="لا تفوّت الفرصة!" style="font-size:96px"></h1>
+      <div class="chev pop" style="--o:.6s;transform:rotate(-90deg)"><b></b><b></b><b></b></div>
+      <div class="cta" style="--o:.9s"><svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3v4l5-4h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/></svg>راسلنا هسه<span class="ripple"></span></div>
+      <h1 class="pop" style="--o:1.3s;font-size:54px;color:#777">إعلانك الممول بـ <span class="hl">2000 دينار</span> فقط</h1>
+    </div>
+    <svg class="cursor" viewBox="0 0 24 24"><path d="M5 2l14 11-6 1 4 7-3 1.5-4-7-5 4z" fill="#141414" stroke="#fff" stroke-width="1.2"/></svg>
+  </section>
 </div>
 <script>
-window.VO_START=[0.3,3.5,6.7,10.6,16.9,20.1,22.7];
-// bars
-const bars=document.getElementById('bars');
-[30,45,38,58,52,72,66,100].forEach((h,i)=>{const b=document.createElement('b');b.style.height=h+'%';b.style.animationDelay=(20.1+i*.08)+'s';bars.appendChild(b)});
-// deterministic confetti per scene
-let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+// Scene timing: [duration, voice offset] — tuned to the voiceover line lengths.
+const VO_LEN=[2.13,1.97,2.92,1.76,5.06,2.43,1.82,1.28,2.22];
+const D=[3.1,3.0,4.0,2.8,6.1,3.5,3.8,2.7,4.2];
+const VO_OFF=.3;
+const S=[];let acc=0;D.forEach(d=>{S.push(+acc.toFixed(2));acc+=d});
+window.DURATION=+acc.toFixed(2);
+window.VO_START=S.map(s=>+(s+VO_OFF).toFixed(2));
+document.getElementById('stage').style.setProperty('--T',DURATION+'s');
+document.querySelectorAll('.scene').forEach(sc=>{const i=+sc.dataset.i;sc.style.setProperty('--s',S[i]+'s');sc.style.setProperty('--d',D[i]+'s')});
+// kinetic words: spread words across the start of the voice line
+document.querySelectorAll('[data-words]').forEach(el=>{
+  const ws=el.dataset.words.split(' ');const from=+(el.dataset.from||0);
+  el.innerHTML=ws.map((w,k)=>`<span class="w" style="--o:${(VO_OFF+from+k*.28).toFixed(2)}s">${w}</span>`).join(' ');
+});
+document.querySelectorAll('[data-at]').forEach(el=>el.style.setProperty('--o',(VO_OFF+ +el.dataset.at)+'s'));
+
+let seed=11;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
 const cols=['#f0564a','#3f5bd9','#1fa37a','#ffc53d','#ff4f8b','#17b3c9','#8a5cf6'];
+const pick=a=>a[Math.floor(rnd()*a.length)];
 const shapes=[
  c=>`<svg width="60" height="60" viewBox="0 0 10 10"><path d="M2 2l6 6M8 2l-6 6" stroke="${c}" stroke-width="2.2" stroke-linecap="round"/></svg>`,
  c=>`<svg width="44" height="44"><circle cx="22" cy="22" r="16" fill="none" stroke="${c}" stroke-width="7"/></svg>`,
@@ -141,19 +314,40 @@ const shapes=[
  c=>`<svg width="56" height="56" viewBox="0 0 10 10"><path d="M5 0l1.3 3.7L10 5 6.3 6.3 5 10 3.7 6.3 0 5l3.7-1.3z" fill="${c}"/></svg>`,
  c=>`<svg width="60" height="60" viewBox="0 0 12 12">${[...Array(16)].map((_,i)=>`<circle cx="${1.5+(i%4)*3}" cy="${1.5+(i>>2)*3}" r="1" fill="${c}"/>`).join('')}</svg>`
 ];
-const conf=document.getElementById('confetti');
+// ambient floating shapes
+const amb=document.getElementById('amb');
+for(let k=0;k<14;k++){const e=document.createElement('div');e.className='amb';e.style.cssText=`left:${rnd()*1000}px;top:${rnd()*1850}px;animation-delay:-${(rnd()*7).toFixed(2)}s;transform:scale(.6)`;e.innerHTML=pick(shapes)(pick(cols));amb.appendChild(e)}
+// per-scene confetti (skipped on dark/green scenes where it would clash)
 document.querySelectorAll('.scene').forEach(sc=>{
-  const s=sc.style.getPropertyValue('--s'),d=sc.style.getPropertyValue('--d');
-  for(let k=0;k<11;k++){
-    let x,y;do{x=rnd()*1000;y=150+rnd()*1650}while(x>150&&x<880&&y>560&&y<1400);
+  const i=+sc.dataset.i;if(i===3||i===6)return;
+  for(let k=0;k<12;k++){let x,y;do{x=rnd()*1000;y=150+rnd()*1650}while(x>120&&x<900&&y>520&&y<1450);
     const e=document.createElement('div');e.className='c';
-    e.style.cssText=`left:${x}px;top:${y}px;--s:calc(${s} + ${(rnd()*.5).toFixed(2)}s);--d:${d}`;
-    e.innerHTML=shapes[Math.floor(rnd()*shapes.length)](cols[Math.floor(rnd()*cols.length)]);
-    conf.appendChild(e);
-  }
+    e.style.cssText=`left:${x}px;top:${y}px;--s:${(S[i]+rnd()*.5).toFixed(2)}s`;e.innerHTML=pick(shapes)(pick(cols));sc.appendChild(e)}
 });
+// orbiting audience avatars
+const orbit=document.getElementById('orbit');
+const person='<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.5"/><path d="M3 22a9 9 0 0 1 18 0z"/></svg>';
+for(let k=0;k<9;k++){const a=k/9*Math.PI*2,r=430;const e=document.createElement('div');e.className='av pop';
+  e.style.cssText=`left:${440+Math.cos(a)*r}px;top:${440+Math.sin(a)*r}px;background:${cols[k%cols.length]};--o:${(.2+k*.12).toFixed(2)}s`;e.innerHTML=person;orbit.appendChild(e)}
+// hearts on the phone
+const hearts=document.getElementById('hearts');
+for(let k=0;k<7;k++){const e=document.createElement('div');e.className='heart';e.style.cssText=`--o:${(.6+k*.3).toFixed(2)}s;--hx:${(rnd()*160-40)|0}px;left:${40+rnd()*60}px`;
+  e.innerHTML=`<svg viewBox="0 0 24 24" fill="${pick(['#ff4f8b','#f0564a','#ffc53d'])}"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.7-8 11-8 11z"/></svg>`;hearts.appendChild(e)}
+// price slam timing: lands on "بألفين"
+const SLAM=VO_OFF+1.05;
+['slam','shake'].forEach(id=>document.getElementById(id).style.setProperty('--o',SLAM+'s'));
+document.getElementById('iqd').style.setProperty('--o',(SLAM+.45)+'s');
+const rings=document.getElementById('rings');
+for(let k=0;k<3;k++){const e=document.createElement('div');e.className='ring';e.style.setProperty('--o',(SLAM+.05+k*.15)+'s');e.style.borderColor=['#ffc53d','#6fd3ae','#fff'][k];rings.appendChild(e)}
+const burst=document.getElementById('burst');
+for(let k=0;k<36;k++){const a=rnd()*Math.PI*2,r=380+rnd()*520;const e=document.createElement('div');e.className='burst';
+  e.style.cssText=`background:${pick(cols)};--o:${(SLAM+.05).toFixed(2)}s;--dx:${(Math.cos(a)*r)|0}px;--dy:${(Math.sin(a)*r)|0}px;border-radius:${rnd()>.5?'50%':'6px'}`;burst.appendChild(e)}
+// dashboard bars
+const bars=document.getElementById('bars');
+[28,46,40,62,58,80,72,100].forEach((h,k)=>{const b=document.createElement("b");b.style.height=h+"%";b.style.setProperty("--o",(.25+k*.07).toFixed(2)+'s');bars.appendChild(b)});
+document.querySelector('.line path').style.setProperty('--o','.5s');
+
 window.seek=t=>{document.getAnimations().forEach(a=>{a.pause();a.currentTime=t*1000})};
-window.DURATION=25.8;
 </script>
 </body>
 </html>

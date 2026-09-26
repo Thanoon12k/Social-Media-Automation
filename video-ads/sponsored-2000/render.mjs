@@ -17,8 +17,13 @@ await page.evaluate(async () => { await document.fonts.load("700 100px PlexDigit
 const dur = await page.evaluate(() => window.DURATION);
 // Export timing cues so make_audio.py can sync sound effects to the animation.
 const cues = await page.evaluate(() => {
-  const t = n => document.getAnimations().filter(a => a.animationName === n).map(a => a.effect.getTiming().delay / 1000);
-  return { duration: window.DURATION, voice: window.VO_START, scene: t('scene'), pop: t('pop'), strike: t('strike'), grow: t('grow') };
+  const c = { duration: window.DURATION, voice: window.VO_START, anim: {} };
+  for (const a of document.getAnimations()) {
+    const t = a.effect.getTiming();
+    if (t.iterations === Infinity) continue;
+    (c.anim[a.animationName] ||= []).push([t.delay / 1000, t.duration / 1000]);
+  }
+  return c;
 });
 (await import('node:fs')).writeFileSync(path.join(dir, 'cues.json'), JSON.stringify(cues, null, 1));
 
