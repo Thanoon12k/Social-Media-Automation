@@ -30,22 +30,29 @@ os.makedirs('vo', exist_ok=True)
 FF = imageio_ffmpeg.get_ffmpeg_exe()
 
 async def tts(text, path):
-    await edge_tts.Communicate(text, VOICE, rate=RATE, pitch=PITCH).save(path)
+    words, audio = [], bytearray()
+    async for ch in edge_tts.Communicate(text, VOICE, rate=RATE, pitch=PITCH, boundary='WordBoundary').stream():
+        if ch['type'] == 'audio': audio += ch['data']
+        elif ch['type'] == 'WordBoundary': words.append([ch['text'], ch['offset'] / 1e7])
+    open(path, 'wb').write(audio)
+    json.dump(words, open(path + '.json', 'w'), ensure_ascii=False)
 
 def load(path):
     raw = subprocess.run([FF, '-v', 'error', '-i', path, '-f', 's16le', '-ac', '1', '-ar', str(SR), '-'],
                          capture_output=True, check=True).stdout
     a = np.frombuffer(raw, '<i2').astype(np.float32) / 32768
     nz = np.nonzero(np.abs(a) > 0.01)[0]
-    return a[max(0, nz[0] - 200): nz[-1] + 1500] if len(nz) else a
+    s0 = max(0, nz[0] - 200) if len(nz) else 0
+    return a[s0: nz[-1] + 1500] if len(nz) else a, s0 / SR
 
 beats, clips, t = [], [], 0.0
 for bid, text, gap, cap in BEATS:
     p = f'vo/{bid}.mp3'
-    if not os.path.exists(p):
+    if not os.path.exists(p + '.json'):
         asyncio.run(tts(text, p))
-    c = load(p); t += gap
-    beats.append({'id': bid, 't0': round(t, 3), 't1': round(t + len(c) / SR, 3), 'text': cap or text})
+    c, trim = load(p); t += gap
+    words = [[w, round(t + o - trim, 3)] for w, o in json.load(open(p + '.json'))]
+    beats.append({'id': bid, 't0': round(t, 3), 't1': round(t + len(c) / SR, 3), 'text': cap or text, 'words': words})
     clips.append((t, c)); t += len(c) / SR
 dur = round(t + TAIL, 3)
 vo = np.zeros(int(dur * SR))
