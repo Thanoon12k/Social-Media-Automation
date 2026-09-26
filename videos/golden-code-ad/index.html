@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Golden Code Ad</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root{
+    --gold:#F5C542; --gold2:#D4A017; --gold3:#FFE08A; --deep:#8a6410;
+    --bg:#070605; --panel:#15110b; --panel2:#1d170e; --line:rgba(245,197,66,.18);
+    --txt:#f6efe0; --mut:#9b8e74; --ok:#7ee0a1;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg)}
+  body{font-family:'Cairo',sans-serif;color:var(--txt)}
+  #stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--bg)}
+  .abs{position:absolute}
+  .scene{position:absolute;inset:0;opacity:0}
+  .center{display:flex;align-items:center;justify-content:center;flex-direction:column}
+  .display{font-family:'Lalezar','Cairo',sans-serif;font-weight:400;line-height:1.1}
+  .goldtxt{background:linear-gradient(180deg,#fff3c4 0%,#F5C542 45%,#b8860b 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .mono{font-family:'JetBrains Mono',monospace;direction:ltr}
+
+  /* background */
+  #glow1,#glow2{position:absolute;border-radius:50%;filter:blur(120px)}
+  #glow1{width:900px;height:900px;background:radial-gradient(circle,rgba(245,197,66,.55),rgba(245,197,66,0) 70%)}
+  #glow2{width:800px;height:800px;background:radial-gradient(circle,rgba(180,110,20,.45),rgba(180,110,20,0) 70%)}
+  #vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,.75) 100%)}
+  #grid{position:absolute;inset:-200px;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:90px 90px;opacity:.12;
+        -webkit-mask-image:radial-gradient(ellipse at center,#000 20%,transparent 70%)}
+  .glyph{position:absolute;font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:700}
+
+  /* S1 */
+  .s1word{position:absolute;left:0;right:0;top:760px;text-align:center;font-size:230px}
+  .s1icon{position:absolute;left:50%;top:520px;width:200px;height:200px;margin-left:-100px}
+
+  /* cards */
+  .card{position:absolute;border-radius:36px;background:linear-gradient(160deg,#1f190f,#0e0b07);border:2px solid rgba(245,197,66,.14);overflow:hidden}
+  .card .bar{position:absolute;height:14px;border-radius:7px;background:rgba(245,197,66,.16)}
+  .chip{display:inline-flex;align-items:center;gap:10px;padding:10px 28px;border-radius:999px;font-weight:700;font-size:32px}
+
+  /* input */
+  #inputbar{position:absolute;left:90px;right:90px;top:1000px;height:150px;border-radius:80px;background:#120e08;border:3px solid rgba(245,197,66,.6);
+            box-shadow:0 0 60px rgba(245,197,66,.25),inset 0 0 30px rgba(245,197,66,.08);display:flex;align-items:center;padding:0 30px 0 40px;gap:24px}
+  #inputtxt{flex:1;font-size:40px;font-weight:600;white-space:nowrap;overflow:hidden}
+  #sendbtn{width:96px;height:96px;border-radius:50%;background:linear-gradient(180deg,#ffd970,#d9a21c);display:flex;align-items:center;justify-content:center;flex:none}
+  .caret{display:inline-block;width:4px;height:48px;background:var(--gold);vertical-align:middle;margin-inline-start:4px}
+  .bubble{position:absolute;border-radius:40px;padding:26px 40px;font-size:38px;font-weight:700}
+  .step{position:absolute;width:280px;height:380px;border-radius:32px;background:linear-gradient(180deg,#1c160c,#0f0c07);border:2px solid rgba(245,197,66,.25);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:40px}
+  .step .num{position:absolute;top:22px;right:28px;font-family:'JetBrains Mono';color:var(--gold);font-size:30px;font-weight:700}
+  .step .lbl{font-size:34px;font-weight:700;color:var(--txt);margin-top:26px}
+
+  /* editor */
+  #tabs{position:absolute;top:120px;left:0;right:0;display:flex;justify-content:center;gap:18px}
+  .tab{padding:12px 30px;border-radius:999px;font-size:32px;font-weight:700;background:#1a150d;color:var(--mut);border:2px solid rgba(245,197,66,.15)}
+  .tab.on{background:linear-gradient(180deg,#ffd970,#d9a21c);color:#1a1205;border-color:transparent;box-shadow:0 0 30px rgba(245,197,66,.4)}
+  #editor{position:absolute;left:60px;right:60px;top:240px;height:720px;border-radius:32px;background:#0f0c08;border:2px solid rgba(245,197,66,.25);box-shadow:0 30px 80px rgba(0,0,0,.6);overflow:hidden}
+  #editor .head{height:70px;border-bottom:2px solid rgba(245,197,66,.12);display:flex;align-items:center;padding:0 28px;gap:14px;direction:ltr}
+  .dot{width:20px;height:20px;border-radius:50%}
+  #code{padding:26px 34px;font-size:33px;line-height:1.55;white-space:pre;direction:ltr;text-align:left;font-family:'JetBrains Mono',monospace;font-weight:500}
+  .ln{display:inline-block;width:52px;color:#4f4636;text-align:right;margin-right:26px}
+  .k{color:#ff9e64}.s{color:#F5C542}.f{color:#ffe08a}.p{color:#cfc4ad}.c{color:#6d6250}.n{color:#7ee0a1}
+  #phone{position:absolute;left:50%;width:520px;height:1060px;margin-left:-260px;border-radius:70px;background:#050403;border:10px solid #2a2216;box-shadow:0 0 0 3px rgba(245,197,66,.35),0 40px 120px rgba(0,0,0,.8),0 0 120px rgba(245,197,66,.15);overflow:hidden}
+  #phone .notch{position:absolute;top:18px;left:50%;width:150px;height:38px;margin-left:-75px;border-radius:20px;background:#000;z-index:5}
+  .ph{position:absolute;left:30px;right:30px}
+  .goldbtn{border-radius:999px;background:linear-gradient(180deg,#ffd970,#d9a21c);color:#1a1205;font-weight:900;text-align:center}
+  #tracks{position:absolute;left:60px;right:60px;height:230px;border-radius:28px;background:#0f0c08;border:2px solid rgba(245,197,66,.15);overflow:hidden}
+  .trk{position:absolute;left:140px;right:30px;height:40px;border-radius:10px}
+  .trklbl{position:absolute;right:24px;width:100px;font-size:24px;color:var(--mut);text-align:right}
+  .kf{position:absolute;width:24px;height:24px;background:var(--gold);transform:rotate(45deg);border-radius:4px}
+
+  /* build */
+  #buildcard{position:absolute;left:170px;right:170px;top:620px;height:640px;border-radius:44px;background:linear-gradient(180deg,#17120a,#0d0a06);border:2px solid rgba(245,197,66,.2);box-shadow:0 30px 100px rgba(0,0,0,.6)}
+  .term{position:absolute;left:170px;right:170px;top:1300px;font-size:28px;line-height:1.7;color:var(--mut)}
+
+  /* notif */
+  .notif{position:absolute;left:40px;right:40px;height:130px;border-radius:30px;background:rgba(24,19,10,.98);border:2px solid rgba(245,197,66,.35);display:flex;align-items:center;gap:22px;padding:0 26px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .notif .ic{width:80px;height:80px;border-radius:22px;background:linear-gradient(180deg,#ffd970,#d9a21c);display:flex;align-items:center;justify-content:center;flex:none}
+
+  /* logo */
+  .logo{width:260px;height:260px;border-radius:70px;background:linear-gradient(145deg,#ffe8a0,#F5C542 40%,#a8770d);display:flex;align-items:center;justify-content:center;box-shadow:0 0 90px rgba(245,197,66,.55), inset 0 -10px 30px rgba(0,0,0,.25)}
+  .logo span{font-family:'JetBrains Mono';font-weight:700;font-size:110px;color:#1a1205;direction:ltr;letter-spacing:-6px}
+  #flash{position:absolute;inset:0;background:linear-gradient(160deg,#ffe08a,#F5C542 50%,#d69e12);opacity:0}
+  #sheen{position:absolute;top:-400px;width:260px;height:2800px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transform:rotate(20deg);opacity:0}
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- ===== background ===== -->
+  <div id="grid"></div>
+  <div id="glow1"></div>
+  <div id="glow2"></div>
+  <div id="glyphs"></div>
+  <div id="vignette"></div>
+
+  <!-- ===== S1: word cycle ===== -->
+  <div class="scene" id="s1">
+    <svg class="s1icon" id="ic1" viewBox="0 0 64 64" fill="none" stroke="#F5C542" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="10" width="52" height="40" rx="6"/><path d="M6 20h52"/><circle cx="12" cy="15" r="1.2" fill="#F5C542"/><circle cx="17" cy="15" r="1.2" fill="#F5C542"/><path d="M24 40l-6-6 6-6M40 28l6 6-6 6M35 26l-6 16"/><path d="M22 58h20"/>
+    </svg>
+    <svg class="s1icon" id="ic2" viewBox="0 0 64 64" fill="none" stroke="#F5C542" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="12" y="20" width="40" height="32" rx="10"/><path d="M32 20v-8"/><circle cx="32" cy="9" r="3"/><circle cx="24" cy="35" r="3.5"/><circle cx="40" cy="35" r="3.5"/><path d="M26 44h12"/><path d="M12 34H7M57 34h-5"/>
+    </svg>
+    <svg class="s1icon" id="ic3" viewBox="0 0 64 64" fill="none" stroke="#F5C542" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 40c-5-4-8-9-8-15a18 18 0 0 1 36 0c0 6-3 11-8 15v6H22z"/><path d="M24 52h16M27 58h10"/><path d="M32 28v12M27 32l5-4 5 4"/>
+    </svg>
+    <div class="s1word display goldtxt" id="w1">موقع؟</div>
+    <div class="s1word display goldtxt" id="w2">بوت؟</div>
+    <div class="s1word display goldtxt" id="w3">ولّا فكرة؟</div>
+  </div>
+
+  <!-- ===== S2: feed ===== -->
+  <div class="scene" id="s2">
+    <div id="feed" class="abs" style="left:0;right:0;top:0;height:1920px"></div>
+    <div class="abs display" id="s2txt" style="left:0;right:0;top:1330px;text-align:center;font-size:110px;color:#fff">نحوّلها <span class="goldtxt">لكود</span> يشتغل</div>
+  </div>
+
+  <!-- ===== S3: prompt ===== -->
+  <div class="scene" id="s3">
+    <div id="inputbar">
+      <div id="inputtxt"><span id="typed"></span><span class="caret" id="caret"></span><span id="ph" style="color:#6b604c">اكتب فكرتك...</span></div>
+      <div id="sendbtn"><svg width="48" height="48" viewBox="0 0 24 24" fill="#1a1205"><path d="M3 11.5l17-8-6.5 17-2.5-7z"/></svg></div>
+    </div>
+    <div class="bubble" id="ubub" style="left:120px;top:250px;background:linear-gradient(180deg,#ffd970,#d9a21c);color:#1a1205;border-bottom-left-radius:10px">عندي فكرة متجر إلكتروني… شلون أبدي؟</div>
+    <div class="bubble" id="rbub" style="right:90px;top:420px;background:#1a150d;border:2px solid rgba(245,197,66,.3);color:var(--txt);border-bottom-right-radius:10px;font-size:36px">
+      <div style="display:flex;align-items:center;gap:14px;font-size:26px;color:var(--gold);margin-bottom:8px"><span class="mono" style="font-weight:700">&lt;/&gt;</span> Golden Code</div>
+      جهّزنالك الخطة كاملة، من الفكرة للإطلاق 👇
+    </div>
+    <div class="step" id="st1" style="right:80px;top:720px"><span class="num">01</span>
+      <svg width="130" height="130" viewBox="0 0 64 64" fill="none" stroke="#F5C542" stroke-width="3" stroke-linecap="round"><circle cx="28" cy="28" r="16"/><path d="M40 40l14 14"/><path d="M22 28h12M28 22v12"/></svg>
+      <div class="lbl">تحليل الفكرة</div></div>
+    <div class="step" id="st2" style="right:400px;top:720px"><span class="num">02</span>
+      <svg width="130" height="130" viewBox="0 0 64 64" fill="none" stroke="#F5C542" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="10" width="48" height="36" rx="6"/><path d="M8 20h48M22 46v8M42 46v8M16 54h32"/><rect x="16" y="26" width="14" height="12" rx="2"/><path d="M36 28h12M36 34h8"/></svg>
+      <div class="lbl">تصميم الواجهة</div></div>
+    <div class="step" id="st3" style="right:720px;top:720px"><span class="num">03</span>
+      <svg width="130" height="130" viewBox="0 0 64 64" fill="none" stroke="#F5C542" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 20L8 32l14 12M42 20l14 12-14 12M36 14l-8 36"/></svg>
+      <div class="lbl">برمجة وإطلاق</div></div>
+  </div>
+
+  <!-- ===== S4: editor + preview ===== -->
+  <div class="scene" id="s4">
+    <div id="tabs">
+      <div class="tab" data-i="0">فكرة</div><div class="tab" data-i="1">تصميم</div><div class="tab" data-i="2">برمجة</div><div class="tab" data-i="3">اختبار</div><div class="tab" data-i="4">إطلاق</div>
+    </div>
+    <div id="editor">
+      <div class="head"><div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+        <div class="mono" style="margin-left:24px;color:var(--mut);font-size:26px">store.js</div>
+        <div class="mono" style="margin-left:auto;color:var(--gold);font-size:26px;font-weight:700">&lt;/&gt; Golden Code</div></div>
+      <div id="code"></div>
+    </div>
+    <div id="phone" style="top:1000px">
+      <div class="notch"></div>
+      <div id="pvHead" class="ph" style="top:80px;height:80px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:34px;font-weight:900" class="goldtxt">Golden Shop</div>
+        <div style="width:60px;height:60px;border-radius:18px;background:#1a150d;border:2px solid rgba(245,197,66,.3)"></div>
+      </div>
+      <div id="pvCard" class="ph" style="top:190px;height:560px;border-radius:40px;background:radial-gradient(circle at 50% 35%,#3a2a0c,#120d06 70%);border:2px solid rgba(245,197,66,.25);overflow:hidden">
+        <svg id="watch" viewBox="0 0 200 260" width="230" style="position:absolute;left:50%;top:30px;margin-left:-115px">
+          <defs><linearGradient id="wg" x1="0" x2="1"><stop offset="0" stop-color="#8a6410"/><stop offset=".5" stop-color="#ffe08a"/><stop offset="1" stop-color="#8a6410"/></linearGradient>
+          <radialGradient id="face"><stop offset="0" stop-color="#2a2010"/><stop offset="1" stop-color="#0b0804"/></radialGradient></defs>
+          <rect x="70" y="0" width="60" height="70" rx="8" fill="url(#wg)"/><rect x="70" y="190" width="60" height="70" rx="8" fill="url(#wg)"/>
+          <g stroke="#6b4e0c" stroke-width="2" opacity=".6"><path d="M70 14h60M70 28h60M70 42h60M70 56h60M70 204h60M70 218h60M70 232h60M70 246h60"/></g>
+          <circle cx="100" cy="130" r="72" fill="url(#wg)"/><circle cx="100" cy="130" r="60" fill="url(#face)"/>
+          <g stroke="#F5C542" stroke-width="3" stroke-linecap="round"><path d="M100 76v10M100 174v10M46 130h10M144 130h10"/></g>
+          <path id="hHour" d="M100 130V98" stroke="#ffe08a" stroke-width="6" stroke-linecap="round"/>
+          <path id="hMin" d="M100 130V84" stroke="#F5C542" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="100" cy="130" r="6" fill="#ffe08a"/><rect x="170" y="120" width="12" height="20" rx="3" fill="url(#wg)"/>
+        </svg>
+        <div id="pvTitle" style="position:absolute;left:0;right:0;top:330px;text-align:center;font-size:52px;font-weight:900">ساعة ذهبية</div>
+        <div id="pvSub" style="position:absolute;left:0;right:0;top:405px;text-align:center;font-size:28px;color:var(--mut)">فخامة تدوم وياك</div>
+        <div id="pvBtn" class="goldbtn" style="position:absolute;left:90px;right:90px;top:462px;height:72px;line-height:72px;font-size:32px">اطلب الحين · 49$</div>
+      </div>
+      <div id="pvRow" class="ph" style="top:780px;height:200px;display:flex;gap:20px">
+        <div style="flex:1;border-radius:30px;background:#15110b;border:2px solid rgba(245,197,66,.15)"></div>
+        <div style="flex:1;border-radius:30px;background:#15110b;border:2px solid rgba(245,197,66,.15)"></div>
+      </div>
+    </div>
+    <div id="tracks" style="top:1640px">
+      <div class="trklbl" style="top:28px">واجهة</div><div class="trklbl" style="top:88px">كود</div><div class="trklbl" style="top:148px">حركة</div>
+      <div class="trk" id="tk1" style="top:24px;background:linear-gradient(90deg,#F5C542,#d9a21c)"></div>
+      <div class="trk" id="tk2" style="top:84px;background:repeating-linear-gradient(90deg,#8a6410 0 10px,#c8961a 10px 18px)"></div>
+      <div id="kfs"></div>
+      <div id="playhead" class="abs" style="top:10px;bottom:10px;width:4px;background:#ff5a4f;border-radius:2px"></div>
+    </div>
+  </div>
+
+  <!-- ===== S5: gold flash ===== -->
+  <div id="flash"></div>
+  <div class="scene center" id="s5">
+    <div class="display" id="s5a" style="font-size:330px;color:#140e04">كود</div>
+    <div class="display" id="s5b" style="font-size:250px;color:#140e04;margin-top:-40px">ذهبي</div>
+  </div>
+
+  <!-- ===== S6: build ===== -->
+  <div class="scene" id="s6">
+    <div id="buildcard">
+      <svg width="320" height="320" viewBox="0 0 320 320" style="position:absolute;left:50%;top:90px;margin-left:-160px">
+        <circle cx="160" cy="160" r="130" stroke="#2a2216" stroke-width="22" fill="none"/>
+        <circle id="ring" cx="160" cy="160" r="130" stroke="#F5C542" stroke-width="22" fill="none" stroke-linecap="round" transform="rotate(-90 160 160)" stroke-dasharray="816.8" stroke-dashoffset="816.8"/>
+        <circle id="okc" cx="160" cy="160" r="130" stroke="#F5C542" stroke-width="22" fill="none" opacity="0"/>
+        <path id="check" d="M105 165l38 38 75-85" stroke="#F5C542" stroke-width="24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="200" stroke-dashoffset="200"/>
+      </svg>
+      <div id="pct" class="mono abs" style="left:0;right:0;top:205px;text-align:center;font-size:76px;font-weight:700;color:#fff">0%</div>
+      <div id="bstat" class="abs" style="left:0;right:0;top:450px;text-align:center;font-size:46px;font-weight:700">جاري البناء...</div>
+      <div id="bbar" class="abs" style="left:60px;right:60px;top:560px;height:12px;border-radius:6px;background:#2a2216;overflow:hidden;direction:ltr"><div id="bfill" style="height:100%;width:0;background:linear-gradient(90deg,#d9a21c,#ffe08a)"></div></div>
+    </div>
+    <div class="term mono" id="term"></div>
+  </div>
+
+  <!-- ===== S7: launched phone + notifications ===== -->
+  <div class="scene" id="s7">
+    <div class="abs display" id="s7t" style="left:0;right:0;top:170px;text-align:center;font-size:120px">وصار <span class="goldtxt">حقيقي</span></div>
+    <div id="notifs"></div>
+  </div>
+
+  <!-- ===== S8: end card ===== -->
+  <div class="scene" id="s8">
+    <div class="abs center" id="s8logo" style="left:0;right:0;top:520px"><div class="logo"><span>&lt;/&gt;</span></div></div>
+    <div class="abs mono goldtxt" id="s8name" style="left:0;right:0;top:830px;text-align:center;font-size:118px;font-weight:700;letter-spacing:-2px">Golden Code</div>
+    <div class="abs display" id="s8ar" style="left:0;right:0;top:985px;text-align:center;font-size:84px;color:#fff">كولدن كود</div>
+    <div class="abs" id="s8tag" style="left:0;right:0;top:1120px;text-align:center;font-size:46px;font-weight:600;color:var(--mut)">نبرمج أفكارك بلمسة ذهبية</div>
+    <div class="abs goldbtn" id="s8cta" style="left:250px;right:250px;top:1270px;height:130px;line-height:130px;font-size:56px;box-shadow:0 0 70px rgba(245,197,66,.45)">تابعنا الحين</div>
+    <div class="abs mono" id="s8handle" style="left:0;right:0;top:1450px;text-align:center;font-size:40px;color:var(--mut)">@GoldenCode</div>
+    <div id="sheen"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- config (edit texts here) ---------- */
+const CFG = {
+  handle: '@GoldenCode',
+};
+document.getElementById('s8handle').textContent = CFG.handle;
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const clamp = (v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const P = (t,a,b)=>clamp((t-a)/(b-a));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const eOut=k=>1-Math.pow(1-k,3);
+const eIn=k=>k*k*k;
+const eIO=k=>k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+const eBack=k=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(k-1,3)+c1*Math.pow(k-1,2)};
+const eExpo=k=>k===1?1:1-Math.pow(2,-10*k);
+function css(el,o){for(const k in o) el.style[k]=o[k];}
+function seeded(s){return ()=>{s=(s*16807)%2147483647;return (s-1)/2147483646}}
+// fade window [a,b] with in/out duration
+function win(t,a,b,fi=.3,fo=.3){return Math.min(P(t,a,a+fi), 1-P(t,b-fo,b));}
+
+/* ---------- background glyphs ---------- */
+const rnd=seeded(7);
+const GL=['{ }','</>','01','=>','( )','[ ]','#','$','fn','//',';','&&'];
+const glyphs=[];
+for(let i=0;i<26;i++){
+  const d=document.createElement('div');d.className='glyph';d.textContent=GL[i%GL.length];
+  const g={el:d,x:rnd()*1080,y:rnd()*1920,s:24+rnd()*40,sp:20+rnd()*50,o:.05+rnd()*.12,ph:rnd()*6};
+  d.style.fontSize=g.s+'px';$('glyphs').appendChild(d);glyphs.push(g);
+}
+
+/* ---------- S2 feed cards ---------- */
+const feedLabels=['متجر','بوت تلكرام','موقع شركة','Golden Code','تطبيق','لوحة تحكم','متجر'];
+const feedCards=[];
+feedLabels.forEach((l,i)=>{
+  const c=document.createElement('div');c.className='card';
+  const hero = l==='Golden Code';
+  css(c,{left:'190px',width:'700px',height:'440px'});
+  c.innerHTML=`<div class="bar" style="top:30px;left:30px;width:180px"></div><div style="position:absolute;top:22px;right:26px;width:34px;height:34px;border-radius:50%;background:${hero?'#F5C542':'rgba(245,197,66,.25)'}"></div>
+   <div style="position:absolute;left:30px;right:30px;top:80px;bottom:90px;border-radius:24px;background:${hero?'radial-gradient(circle at 50% 40%,#4a360e,#140f07 75%)':'linear-gradient(135deg,rgba(245,197,66,.10),rgba(245,197,66,.02))'};display:flex;align-items:center;justify-content:center;flex-direction:column">
+     <div class="${hero?'mono goldtxt':'display'}" style="font-size:${hero?84:76}px;font-weight:700;color:${hero?'':'rgba(246,239,224,.55)'}">${l}</div>
+     ${hero?'<div style="font-size:30px;color:#cdbf9f;margin-top:6px">نحوّل فكرتك لمشروع</div>':''}
+   </div><div class="bar" style="bottom:36px;left:30px;width:420px"></div>`;
+  if(hero){c.style.border='3px solid #F5C542';c.style.boxShadow='0 0 80px rgba(245,197,66,.35)';}
+  $('feed').appendChild(c);feedCards.push({el:c,i,hero});
+});
+
+/* ---------- S4 code ---------- */
+const CODE=[
+ [['const ','k'],['store','p'],[' = ','p'],['new ','k'],['GoldenStore','f'],['({','p']],
+ [['  name: ','p'],['"Golden Shop"','s'],[',','p']],
+ [['  theme: ','p'],['"gold"','s'],[',','p']],
+ [['});','p']],
+ [['','p']],
+ [['store.','p'],['addProduct','f'],['({','p']],
+ [['  title: ','p'],['"ساعة ذهبية"','s'],[',','p']],
+ [['  price: ','p'],['49','n'],[',','p']],
+ [['});','p']],
+ [['','p']],
+ [['store.','p'],['launch','f'],['();','p'],[' // 🚀','c']],
+];
+const codeLen=CODE.map(l=>l.reduce((a,t)=>a+[...t[0]].length,0));
+const codeTotal=codeLen.reduce((a,b)=>a+b,0);
+function renderCode(n){ // n chars typed
+  let out='',rem=n,caretDone=false;
+  CODE.forEach((line,li)=>{
+    if(rem<=0 && li>0 && caretDone) return;
+    let s=`<span class="ln">${li+1}</span>`;
+    for(const [txt,cl] of line){
+      const ch=[...txt]; const take=Math.max(0,Math.min(ch.length,rem)); rem-=take;
+      if(take) s+=`<span class="${cl}">${ch.slice(0,take).join('').replace(/</g,'&lt;')}</span>`;
+    }
+    if(!caretDone && (rem<=0)){ s+='<span style="display:inline-block;width:18px;height:40px;background:#F5C542;vertical-align:middle;opacity:.9"></span>'; caretDone=true; }
+    out+=s+'\n';
+  });
+  $('code').innerHTML=out;
+}
+function charsBeforeLine(li){let a=0;for(let i=0;i<li;i++)a+=codeLen[i];return a;}
+const kfs=[];for(let i=0;i<8;i++){const k=document.createElement('div');k.className='kf';css(k,{top:(146+ (i%2)*0)+'px',left:(170+i*95)+'px'});$('kfs').appendChild(k);kfs.push(k);}
+
+/* ---------- S6 terminal ---------- */
+const TERM=['$ golden build --prod','✓ الواجهة جاهزة','✓ الكود نظيف وسريع','✓ تم الاختبار','$ golden deploy','✓ المشروع صار أونلاين 🚀'];
+
+/* ---------- S7 notifs ---------- */
+const NOTIFS=[['طلب جديد 🛒','ساعة ذهبية · 49$'],['طلب جديد 🛒','ساعة ذهبية · 49$'],['تقييم جديد ⭐ 5.0','"شغل فخم وسريع!"']];
+const notifEls=NOTIFS.map(([a,b])=>{const n=document.createElement('div');n.className='notif';
+  n.innerHTML=`<div class="ic"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#1a1205" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg></div>
+  <div><div style="font-size:32px;font-weight:800">${a}</div><div style="font-size:26px;color:var(--mut)">${b}</div></div>
+  <div class="mono" style="margin-right:auto;font-size:22px;color:var(--mut)">الآن</div>`;
+  $('notifs').appendChild(n);return n;});
+
+/* ================= TIMELINE ================= */
+const DUR=40;
+const T={s1:[0,3.3],s2:[3.3,6.4],s3:[6.4,11.6],s4:[11.6,20.4],s5:[20.4,22.0],s6:[22.0,27.4],s7:[27.4,32.6],s8:[32.6,40]};
+
+function seek(t){
+  /* background */
+  const g1x=540+Math.sin(t*.35)*260-450, g1y=700+Math.cos(t*.27)*300-450;
+  css($('glow1'),{left:g1x+'px',top:g1y+'px',opacity:(.75+.25*Math.sin(t*.8)).toFixed(3)});
+  css($('glow2'),{left:(540+Math.cos(t*.3)*300-400)+'px',top:(1350+Math.sin(t*.22)*250-400)+'px'});
+  $('grid').style.transform=`translateY(${(t*30)%90}px)`;
+  glyphs.forEach(g=>{let y=((g.y - t*g.sp)%2020+2020)%2020-60;css(g.el,{transform:`translate(${g.x+Math.sin(t*.6+g.ph)*20}px,${y}px)`,opacity:g.o});});
+
+  /* ---- S1 ---- */
+  {const [a,b]=T.s1; const on=t>=a&&t<b+.3; $('s1').style.opacity=on?1:0;
+   if(on){
+    const words=[['w1','ic1',0,1.05],['w2','ic2',1.05,2.1],['w3','ic3',2.1,3.3]];
+    words.forEach(([w,ic,s,e],i)=>{
+      const kin=eBack(P(t,s,s+.35)), kout=P(t,e-.18,e);
+      const last=i===2; const ko= last? P(t,3.05,3.35):kout;
+      const op=Math.min(P(t,s,s+.15),1-ko);
+      const sc=lerp(.6,1,kin)*(1+ko*(last?1.4:.2));
+      const blur=(1-P(t,s,s+.25))*16 + ko*14;
+      css($(w),{opacity:op,transform:`translateY(${(1-kin)*60}px) scale(${sc})`,filter:`blur(${blur}px)`});
+      const ib=eBack(P(t,s+.05,s+.4));
+      css($(ic),{opacity:op,transform:`translateY(${(1-ib)*-40}px) scale(${lerp(.3,1,ib)}) rotate(${(1-ib)*-25}deg)`});
+    });
+   }}
+
+  /* ---- S2 feed ---- */
+  {const [a,b]=T.s2; const op=win(t,a,b,.3,.35); $('s2').style.opacity=op;
+   if(op>0){
+    const lt=t-a; const k=eIO(P(lt,0,2.2));
+    const heroIdx=3, gap=480;
+    const scroll=lerp(-2.4*gap, 0, k); // hero ends at center
+    feedCards.forEach(c=>{
+      const y=960-220+(c.i-heroIdx)*gap - scroll;
+      const dist=Math.abs(y+220-960)/960;
+      const sc=c.hero? lerp(.9,1.12,eBack(P(lt,2.1,2.6))) : lerp(1,.86,clamp(dist*2));
+      css(c.el,{top:y+'px',transform:`scale(${sc})`,opacity:(c.hero?1:lerp(.9,.25,clamp(dist*2)))*(c.hero?1:1-P(lt,2.2,2.6)*.7),filter:c.hero?'none':`blur(${clamp(dist*2)*4}px)`});
+    });
+    const tk=eOut(P(lt,1.9,2.4));
+    css($('s2txt'),{opacity:tk,transform:`translateY(${(1-tk)*80}px)`});
+   }}
+
+  /* ---- S3 prompt ---- */
+  {const [a,b]=T.s3; const op=win(t,a,b,.3,.35); $('s3').style.opacity=op;
+   if(op>0){
+    const lt=t-a; const msg='عندي فكرة متجر إلكتروني… شلون أبدي؟'; const ch=[...msg];
+    const inK=eBack(P(lt,0,.5));
+    const n=Math.floor(ch.length*P(lt,.5,2.2));
+    const sent=lt>2.45;
+    $('typed').textContent=sent?'':ch.slice(0,n).join('');
+    $('ph').style.display=(n===0||sent)?'inline':'none';
+    $('caret').style.opacity=(Math.floor(lt*3)%2===0||(n>0&&n<ch.length))?1:0;
+    const press=1-Math.sin(clamp(P(lt,2.25,2.55))*Math.PI)*.18;
+    $('sendbtn').style.transform=`scale(${press})`;
+    const barUp=eIO(P(lt,2.5,3.1));
+    css($('inputbar'),{transform:`translateY(${lerp(0,560,barUp)}px) scale(${lerp(.7,1,inK)})`,opacity:clamp(inK*1.3)});
+    // user bubble flies from input to top
+    const ub=eOut(P(lt,2.45,3.0));
+    css($('ubub'),{opacity:P(lt,2.45,2.6),transform:`translateY(${lerp(750,0,ub)}px) scale(${lerp(.8,1,ub)})`});
+    const rb=eBack(P(lt,3.05,3.45));
+    css($('rbub'),{opacity:P(lt,3.05,3.2),transform:`translateY(${(1-rb)*40}px) scale(${lerp(.85,1,rb)})`,transformOrigin:'right bottom'});
+    ['st1','st2','st3'].forEach((s,i)=>{const k=eBack(P(lt,3.6+i*.22,4.05+i*.22));
+      css($(s),{opacity:P(lt,3.6+i*.22,3.8+i*.22),transform:`translateY(${(1-k)*120}px) scale(${lerp(.7,1,k)})`});
+      const glow=Math.max(0,Math.sin((lt-4.3-i*.2)*3));
+      $(s).style.boxShadow=`0 0 ${glow*60}px rgba(245,197,66,${glow*.4})`;});
+   }}
+
+  /* ---- S4 editor ---- */
+  {const [a,b]=T.s4; const op=win(t,a,b,.3,.2); $('s4').style.opacity=op;
+   if(op>0){
+    const lt=t-a;
+    // tabs
+    const tabIdx=Math.min(4,Math.floor(lt/1.6));
+    document.querySelectorAll('.tab').forEach((el,i)=>{el.classList.toggle('on',i<=tabIdx);
+      const k=eBack(P(lt,i*.07,.35+i*.07));css(el,{opacity:P(lt,i*.07,.2+i*.07),transform:`translateY(${(1-k)*-40}px)`});});
+    const ek=eOut(P(lt,.1,.6));
+    // typing
+    const typed=Math.floor(codeTotal*P(lt,.5,5.2));
+    renderCode(typed);
+    // phone builds based on code lines
+    const L=i=>P(typed,charsBeforeLine(i),charsBeforeLine(i)+codeLen[i]); // line progress
+    const phK=eOut(P(lt,.2,.9));
+    // zoom phase 5.8..8.8: editor slides away, phone rises & scales
+    const z=eIO(P(lt,5.6,6.6));
+    css($('editor'),{opacity:ek*(1-z),transform:`translateY(${(1-ek)*60 - z*300}px) scale(${lerp(.95,1,ek)*lerp(1,.9,z)})`});
+    css($('phone'),{transform:`translateY(${lerp(900,0,phK) + lerp(0,-640,z)}px) scale(${lerp(1,1.3,z)})`});
+    const hk=eOut(P(typed,0,codeLen[0]+codeLen[1]));
+    css($('pvHead'),{opacity:hk,transform:`translateX(${(1-hk)*60}px)`});
+    const ck=eBack(clamp(L(5)*1.2));
+    css($('pvCard'),{opacity:clamp(L(5)*2),transform:`scale(${lerp(.6,1,ck)})`});
+    $('pvCard').style.background=L(2)>0?'radial-gradient(circle at 50% 35%,#4a3610,#120d06 70%)':'#15110b';
+    const wk=eBack(L(6));
+    css($('watch'),{opacity:L(6),transform:`scale(${lerp(.3,1,wk)}) rotate(${(1-wk)*-30}deg)`});
+    $('hMin').setAttribute('transform',`rotate(${t*60} 100 130)`);
+    $('hHour').setAttribute('transform',`rotate(${t*5+40} 100 130)`);
+    css($('pvTitle'),{opacity:L(6),transform:`translateY(${(1-eOut(L(6)))*30}px)`});
+    css($('pvSub'),{opacity:L(6)*.9});
+    const bk=eBack(L(7));
+    const pulse=lt>5.2?1+Math.sin((lt-5.2)*7)*.04:1;
+    css($('pvBtn'),{opacity:L(7),transform:`scale(${lerp(.5,1,bk)*pulse})`,boxShadow:lt>5.2?`0 0 ${30+Math.sin(lt*7)*15}px rgba(245,197,66,.7)`:'none'});
+    css($('pvRow'),{opacity:L(10)*(1-z)});
+    // tracks
+    css($('tracks'),{opacity:ek*(1-z),transform:`translateY(${(1-ek)*80 + z*200}px)`});
+    $('tk1').style.width=(P(lt,.5,5.2)*700)+'px';
+    $('tk2').style.width=(P(lt,1.2,5.4)*640)+'px';
+    kfs.forEach((k,i)=>{const kk=eBack(P(lt,.6+i*.55,.9+i*.55));k.style.transform=`rotate(45deg) scale(${kk})`;});
+    $('playhead').style.left=(140+P(lt,.5,5.4)*780)+'px';
+    // push-in at the end
+    $('s4').style.transform=`scale(${1+eIn(P(lt,8.1,8.8))*.25})`;
+   }}
+
+  /* ---- S5 gold flash ---- */
+  {const [a,b]=T.s5; const lt=t-a;
+   const fo=t>=a&&t<b+.4? Math.min(eOut(P(lt,0,.12)),1-P(lt,1.45,1.8)) : 0;
+   $('flash').style.opacity=fo; $('s5').style.opacity=fo;
+   if(fo>0){
+    const k1=eBack(P(lt,.05,.35)),k2=eBack(P(lt,.35,.65));
+    css($('s5a'),{opacity:P(lt,.05,.12),transform:`scale(${lerp(2.2,1,k1)})`});
+    css($('s5b'),{opacity:P(lt,.35,.42),transform:`scale(${lerp(2.2,1,k2)}) rotate(${(1-k2)*-8}deg)`});
+    $('s5').style.transform=`scale(${1+lt*.06})`;
+   }}
+
+  /* ---- S6 build ---- */
+  {const [a,b]=T.s6; const op=win(t,a,b,.3,.3); $('s6').style.opacity=op;
+   if(op>0){
+    const lt=t-a;
+    const ck=eBack(P(lt,0,.5));
+    css($('buildcard'),{transform:`scale(${lerp(.7,1,ck)})`,opacity:P(lt,0,.2)});
+    const pr=eIO(P(lt,.4,3.0));
+    const pct=Math.round(pr*100);
+    const done=lt>3.1;
+    $('ring').setAttribute('stroke-dashoffset',(816.8*(1-pr)).toFixed(1));
+    $('pct').textContent=pct+'%';
+    $('pct').style.opacity=1-P(lt,3.0,3.2);
+    const chk=eOut(P(lt,3.15,3.6));
+    $('check').setAttribute('stroke-dashoffset',(200*(1-chk)).toFixed(1));
+    const pop=done?1+Math.sin(clamp(P(lt,3.1,3.5))*Math.PI)*.12:1;
+    $('buildcard').style.transform+=` scale(${pop})`;
+    $('okc').setAttribute('opacity',done?1:0);
+    $('ring').setAttribute('opacity',done?0:1);
+    $('bstat').textContent=done?'جاهز للإطلاق':'جاري البناء...';
+    $('bstat').style.color=done?'#F5C542':'#f6efe0';
+    $('bfill').style.width=(pr*100)+'%';
+    $('buildcard').style.boxShadow=done?`0 0 ${lerp(140,60,P(lt,3.1,4))}px rgba(245,197,66,.45)`:'0 30px 100px rgba(0,0,0,.6)';
+    let h='';TERM.forEach((l,i)=>{const s=.5+i*.55;const k=P(lt,s,s+.2);if(k>0)h+=`<div style="opacity:${k};transform:translateX(${(1-k)*-30}px);color:${l.startsWith('$')?'#cfc4ad':'#F5C542'}">${l}</div>`;});
+    $('term').innerHTML=h;
+   }}
+
+  /* ---- S7 launched ---- */
+  {const [a,b]=T.s7; const op=win(t,a,b,.3,.35); $('s7').style.opacity=op;
+   if(op>0){
+    const lt=t-a;
+    const tk=eBack(P(lt,.1,.55));
+    css($('s7t'),{opacity:P(lt,.1,.3),transform:`translateY(${(1-tk)*-60}px) scale(${lerp(.8,1,tk)})`});
+    notifEls.forEach((n,i)=>{const s=1.0+i*.9;const k=eBack(P(lt,s,s+.4));
+      const push=eOut(P(lt,s+.9,s+1.2))*(i<2?1:0)+eOut(P(lt,s+1.8,s+2.1))*(i<1?1:0);
+      css(n,{top:(340)+'px',opacity:P(lt,s,s+.15),transform:`translateY(${(1-k)*-80 + push*150}px) scale(${lerp(.8,1,k)*(1-push*.04)})`,zIndex:10+i});});
+   }}
+  // phone reuse for S7: show a phone from S4 again? use separate element positioning
+  {const [a,b]=T.s7; const lt=t-a;
+   const on=t>=a-.3&&t<b+.4;
+   if(on){ // move phone element into view via s4-like styling
+     $('s4').style.opacity=Math.max(parseFloat($('s4').style.opacity)||0, win(t,a,b,.35,.4));
+     $('s4').style.transform='none';
+     ['tabs','editor','tracks'].forEach(id=>$(id).style.opacity=0);
+     const k=eOut(P(lt,0,.6));
+     css($('phone'),{transform:`translateY(${lerp(900,-220,k)}px) scale(1.05)`});
+     ['pvHead','pvCard','watch','pvTitle','pvSub','pvBtn','pvRow'].forEach(id=>{$(id).style.opacity=1;});
+     css($('pvCard'),{transform:'none'});css($('watch'),{transform:'none'});css($('pvTitle'),{transform:'none'});css($('pvHead'),{transform:'none'});
+     $('pvBtn').style.transform=`scale(${1+Math.sin(lt*6)*.03})`;
+     $('pvCard').style.background='radial-gradient(circle at 50% 35%,#4a3610,#120d06 70%)';
+     $('hMin').setAttribute('transform',`rotate(${t*60} 100 130)`);
+     renderCode(0);
+   }}
+
+  /* ---- S8 end card ---- */
+  {const [a,b]=T.s8; const op=Math.min(P(t,a,a+.35),1-P(t,39.4,40)); $('s8').style.opacity=op;
+   if(op>0){
+    const lt=t-a;
+    const lk=eBack(P(lt,.1,.7));
+    css($('s8logo'),{opacity:P(lt,.1,.25),transform:`scale(${lerp(.2,1,lk)}) rotate(${(1-lk)*-90}deg) translateY(${Math.sin(lt*2)*8}px)`});
+    const items=[['s8name',.6],['s8ar',.85],['s8tag',1.1],['s8cta',1.45],['s8handle',1.7]];
+    items.forEach(([id,s])=>{const k=eBack(P(lt,s,s+.45));css($(id),{opacity:P(lt,s,s+.2),transform:`translateY(${(1-k)*70}px)${id==='s8cta'?` scale(${1+Math.max(0,Math.sin((lt-2.2)*4))*.05*(lt>2.2)})`:''}`});});
+    const sh=P(lt,2.3,3.3);css($('sheen'),{opacity:sh>0&&sh<1?1:0,left:lerp(-400,1300,eIO(sh))+'px'});
+   }}
+}
+window.seek=seek; window.DUR=DUR;
+seek(parseFloat(new URLSearchParams(location.search).get('t')||'0'));
+</script>
+</body>
+</html>
