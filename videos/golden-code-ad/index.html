@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>Golden Code Ad</title>
 <link rel="stylesheet" href="fonts/fonts.css">
+<script src="timing.js"></script>
 <style>
   :root{
     --gold:#F5C542; --gold2:#D4A017; --gold3:#FFE08A; --deep:#8a6410;
@@ -223,6 +224,9 @@
     <div class="abs mono" id="s8handle" style="left:0;right:0;top:1450px;text-align:center;font-size:40px;color:var(--mut)">@GoldenCode</div>
     <div id="sheen"></div>
   </div>
+
+  <!-- ===== captions (voice-over subtitles) ===== -->
+  <div id="cap" class="abs" style="left:70px;right:70px;top:1735px;display:flex;justify-content:center"><div id="capin" style="max-width:940px;padding:14px 34px;border-radius:26px;background:rgba(8,6,3,.82);border:2px solid rgba(245,197,66,.35);font-size:42px;font-weight:700;line-height:1.45;text-align:center;color:#fff"></div></div>
 </div>
 
 <script>
@@ -321,13 +325,19 @@ const notifEls=NOTIFS.map(([a,b])=>{const n=document.createElement('div');n.clas
 const DUR=40;
 const T={s1:[0,3.3],s2:[3.3,6.4],s3:[6.4,11.6],s4:[11.6,20.4],s5:[20.4,22.0],s6:[22.0,27.4],s7:[27.4,32.6],s8:[32.6,40]};
 
-function seek(t){
-  /* background */
-  const g1x=540+Math.sin(t*.35)*260-450, g1y=700+Math.cos(t*.27)*300-450;
-  css($('glow1'),{left:g1x+'px',top:g1y+'px',opacity:(.75+.25*Math.sin(t*.8)).toFixed(3)});
-  css($('glow2'),{left:(540+Math.cos(t*.3)*300-400)+'px',top:(1350+Math.sin(t*.22)*250-400)+'px'});
-  $('grid').style.transform=`translateY(${(t*30)%90}px)`;
-  glyphs.forEach(g=>{let y=((g.y - t*g.sp)%2020+2020)%2020-60;css(g.el,{transform:`translate(${g.x+Math.sin(t*.6+g.ph)*20}px,${y}px)`,opacity:g.o});});
+// real time -> base animation time (scenes are stretched to fit the voice-over)
+function remap(tr){
+  const TM=window.TIMING; if(!TM) return tr;
+  for(const s of TM.scenes){ if(tr<s.nb||s===TM.scenes[TM.scenes.length-1]) return s.a+(tr-s.na)*(s.b-s.a)/(s.nb-s.na); }
+}
+function seek(tr){ draw(remap(tr),tr); drawCaption(tr); }
+function draw(t,tr){
+  /* background (runs on real time) */
+  const g1x=540+Math.sin(tr*.35)*260-450, g1y=700+Math.cos(tr*.27)*300-450;
+  css($('glow1'),{left:g1x+'px',top:g1y+'px',opacity:(.75+.25*Math.sin(tr*.8)).toFixed(3)});
+  css($('glow2'),{left:(540+Math.cos(tr*.3)*300-400)+'px',top:(1350+Math.sin(tr*.22)*250-400)+'px'});
+  $('grid').style.transform=`translateY(${(tr*30)%90}px)`;
+  glyphs.forEach(g=>{let y=((g.y - tr*g.sp)%2020+2020)%2020-60;css(g.el,{transform:`translate(${g.x+Math.sin(tr*.6+g.ph)*20}px,${y}px)`,opacity:g.o});});
 
   /* ---- S1 ---- */
   {const [a,b]=T.s1; const on=t>=a&&t<b+.3; $('s1').style.opacity=on?1:0;
@@ -504,8 +514,15 @@ function seek(t){
     items.forEach(([id,s])=>{const k=eBack(P(lt,s,s+.45));css($(id),{opacity:P(lt,s,s+.2),transform:`translateY(${(1-k)*70}px)${id==='s8cta'?` scale(${1+Math.max(0,Math.sin((lt-2.2)*4))*.05*(lt>2.2)})`:''}`});});
     const sh=P(lt,2.3,3.3);css($('sheen'),{opacity:sh>0&&sh<1?1:0,left:lerp(-400,1300,eIO(sh))+'px'});
    }}
+  $('tracks').style.display='none';
 }
-window.seek=seek; window.DUR=DUR;
+function drawCaption(tr){
+  const C=(window.TIMING&&window.TIMING.captions)||[]; const c=C.find(c=>tr>=c.t0-.05&&tr<c.t1);
+  if(!c){$('cap').style.opacity=0;return;}
+  const k=eOut(P(tr,c.t0-.05,c.t0+.2)); $('capin').textContent=c.text;
+  css($('cap'),{opacity:Math.min(k,1-P(tr,c.t1-.12,c.t1)),transform:`translateY(${(1-k)*20}px)`});
+}
+window.seek=seek; window.DUR=window.TIMING?window.TIMING.duration:DUR;
 seek(parseFloat(new URLSearchParams(location.search).get('t')||'0'));
 </script>
 </body>
