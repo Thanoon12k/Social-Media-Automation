@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Thahabi Character Sheet</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1920px;overflow:hidden}
+  body{font-family:'Cairo',sans-serif}
+  .mono{font-family:'JetBrains Mono',monospace;direction:ltr}
+  #stage{position:relative;width:1080px;height:1920px;overflow:hidden}
+
+  /* ---------- Theme A: Golden dark (first video style) ---------- */
+  .A{background:#070605;color:#f6efe0}
+  .A #bg{position:absolute;inset:0;background:
+      radial-gradient(circle at 50% 30%,rgba(245,197,66,.35),transparent 55%),
+      radial-gradient(circle at 20% 85%,rgba(180,110,20,.25),transparent 50%)}
+  .A #bg::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(245,197,66,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(245,197,66,.18) 1px,transparent 1px);background-size:90px 90px;opacity:.12;-webkit-mask-image:radial-gradient(ellipse at center,#000 20%,transparent 70%)}
+  .A .title{background:linear-gradient(180deg,#fff3c4 0%,#F5C542 45%,#b8860b 100%);-webkit-background-clip:text;background-clip:text;color:transparent;font-family:'Lalezar','Cairo';font-weight:400}
+  .A .panel{background:linear-gradient(180deg,#1a150d,#0e0b07);border:2px solid rgba(245,197,66,.28);border-radius:34px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .A .chip{background:#1a150d;border:2px solid rgba(245,197,66,.35);color:#F5C542}
+  .A .mark{background:linear-gradient(180deg,#ffd970,#d9a21c);color:#1a1205;border-radius:18px;padding:0 18px}
+  .A .dim{color:#9b8e74}
+  .A .sw{border:2px solid rgba(255,255,255,.15)}
+
+  /* ---------- Theme B: Website neo-brutalist ---------- */
+  .B{background:#FFF6EA;color:#16130D}
+  .B #bg{position:absolute;inset:0;background-image:radial-gradient(#16130D 2.4px,transparent 3px);background-size:46px 46px;opacity:.09}
+  .B .title{font-weight:900;color:#16130D}
+  .B .panel{background:#fff;border:6px solid #16130D;border-radius:38px;box-shadow:-14px 14px 0 #16130D}
+  .B .chip{background:#fff;border:5px solid #16130D;color:#16130D;box-shadow:-6px 6px 0 #16130D}
+  .B .mark{background:#FFC93C;color:#16130D;border:6px solid #16130D;border-radius:22px;padding:0 20px;box-shadow:-8px 8px 0 #16130D}
+  .B .dim{color:#5C554A}
+  .B .mark.small{border-width:4px;box-shadow:-4px 4px 0 #16130D}
+  .mark.small{font-size:26px;padding:0 10px}
+  .B .sw{border:5px solid #16130D;box-shadow:-5px 5px 0 #16130D}
+
+  .abs{position:absolute}
+  .chip{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:8px 30px;font-weight:800;font-size:34px}
+  .row{display:flex;gap:26px;justify-content:center}
+  .exp{width:230px;height:290px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:18px}
+  .exp svg{width:190px;height:220px}
+  .exp b{font-size:30px;font-weight:800;margin-top:4px}
+  .sw{width:92px;height:92px;border-radius:24px}
+  .shape{position:absolute}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <div id="deco"></div>
+
+  <div class="abs" style="left:0;right:0;top:80px;text-align:center"><span class="chip" id="tag"></span></div>
+  <div class="abs title" id="name" style="left:0;right:0;top:170px;text-align:center;font-size:190px;line-height:1.1">ذهبي</div>
+  <div class="abs dim" style="left:0;right:0;top:420px;text-align:center;font-size:40px;font-weight:700">الوكيل الذكي اللي يدير صفحة الكود الذهبي</div>
+
+  <div class="abs" id="hero" style="left:50%;top:480px;width:560px;height:680px;margin-left:-280px"></div>
+
+  <div class="abs panel" id="bubble" style="right:40px;top:540px;padding:22px 32px;font-size:40px;font-weight:800;max-width:420px;white-space:nowrap;line-height:1.4">هلا بالذهبيين! 👋</div>
+
+  <div class="abs panel" style="left:50px;right:50px;top:1190px;padding:26px 20px 30px">
+    <div style="text-align:center;font-size:38px;font-weight:900;margin-bottom:10px">التعابير</div>
+    <div class="row" id="exps"></div>
+  </div>
+
+  <div class="abs panel" style="left:50px;right:50px;top:1620px;height:240px;padding:26px 36px;display:flex;align-items:center;gap:30px">
+    <div style="flex:1">
+      <div style="font-size:36px;font-weight:900">الشخصية</div>
+      <div class="dim" style="font-size:28px;font-weight:600;line-height:1.55">خفيف دم، فخور بنفسه شوية، يحچي عراقي، ويسمّي متابعينه <span class="mark small">الذهبيين</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,92px);gap:14px" id="swatches"></div>
+  </div>
+</div>
+
+<script>
+const theme=(new URLSearchParams(location.search).get('theme')||'A').toUpperCase();
+document.body.className=theme;
+document.getElementById('tag').textContent= theme==='A' ? '🤖 AI Agent · وكيل ذكي' : '🤖 وكيل ذكي · AI Agent';
+
+/* ---------------- robot generator ----------------
+   mood: normal | happy | cool | sad | talk ; wave: arm angle */
+function robot(theme,mood='normal',opt={}){
+  const A=theme==='A';
+  const wave=opt.wave??0, id=opt.id||('r'+Math.random().toString(36).slice(2,7));
+  const ink='#16130D', cream='#FFF6EA';
+  const sw=A?0:10;                 // outline width
+  const stroke=A?'none':ink;
+  const gold=A?`url(#${id}g)`:'#FFC93C';
+  const gold2=A?`url(#${id}g2)`:'#FFC93C';
+  const screen=A?'#0b0906':ink;
+  const eye=A?'#FFD970':cream;
+  const accent=A?'#FFD970':'#FF5C39';
+  const ear=A?`url(#${id}g2)`:'#4361EE';
+  const glowEye=A?`filter="url(#${id}glow)"`:'';
+  let eyes='';
+  if(mood==='normal'||mood==='talk') eyes=`<rect x="-78" y="-128" width="40" height="62" rx="20" fill="${eye}" ${glowEye}/><rect x="38" y="-128" width="40" height="62" rx="20" fill="${eye}" ${glowEye}/>`;
+  if(mood==='happy') eyes=`<path d="M-84 -86q26-40 52 0M32 -86q26-40 52 0" stroke="${eye}" stroke-width="14" fill="none" stroke-linecap="round" ${glowEye}/>`;
+  if(mood==='sad') eyes=`<path d="M-84 -108L-44 -124M84 -108L44 -124" stroke="${eye}" stroke-width="10" stroke-linecap="round" ${glowEye}/><rect x="-74" y="-100" width="34" height="40" rx="17" fill="${eye}" ${glowEye}/><rect x="40" y="-100" width="34" height="40" rx="17" fill="${eye}" ${glowEye}/><path d="M-50 -58q-8 16 0 22q8-6 0-22" fill="#7cc7ff"/>`;
+  if(mood==='cool') eyes=`<g><rect x="-112" y="-122" width="224" height="16" rx="8" fill="${A?'#1a1205':ink}" stroke="${A?'#FFD970':'#FFC93C'}" stroke-width="6"/>
+     <path d="M-104 -118h88v34q0 26-30 26h-28q-30 0-30-26z" fill="#000" stroke="${A?'#FFD970':'#FFC93C'}" stroke-width="7"/>
+     <path d="M16 -118h88v34q0 26-30 26h-28q-30 0-30-26z" fill="#000" stroke="${A?'#FFD970':'#FFC93C'}" stroke-width="7"/>
+     <path d="M-86 -104l20 0M34 -104l20 0" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".8"/></g>`;
+  let mouth='';
+  if(mood==='normal') mouth=`<path d="M-30 -36q30 26 60 0" stroke="${accent}" stroke-width="12" fill="none" stroke-linecap="round"/>`;
+  if(mood==='happy') mouth=`<path d="M-40 -42h80q0 46-40 46t-40-46z" fill="${accent}" ${A?'':'stroke="'+cream+'" stroke-width="0"'}/><path d="M-22 -8q22 12 44 0" fill="${A?'#b8860b':'#c93a1d'}"/>`;
+  if(mood==='talk') mouth=`<ellipse cx="0" cy="-26" rx="30" ry="24" fill="${accent}"/><ellipse cx="0" cy="-14" rx="18" ry="9" fill="${A?'#b8860b':'#c93a1d'}"/>`;
+  if(mood==='cool') mouth=`<path d="M-26 -34q34 14 56 -10" stroke="${accent}" stroke-width="12" fill="none" stroke-linecap="round"/>`;
+  if(mood==='sad') mouth=`<path d="M-30 -22q30 -26 60 0" stroke="${accent}" stroke-width="12" fill="none" stroke-linecap="round"/>`;
+  const cheeks= mood==='sad'?'':`<circle cx="-104" cy="-44" r="15" fill="${A?'#ff9e64':'#FF5C39'}" opacity="${A?.35:.85}"/><circle cx="104" cy="-44" r="15" fill="${A?'#ff9e64':'#FF5C39'}" opacity="${A?.35:.85}"/>`;
+  const armR=`<g transform="rotate(${-wave} 140 110)"><rect x="124" y="100" width="36" height="120" rx="18" fill="${gold2}" stroke="${stroke}" stroke-width="${sw*0.8}"/><circle cx="142" cy="224" r="27" fill="${A?'#2a2114':cream}" stroke="${A?'#FFD970':ink}" stroke-width="${A?4:8}"/></g>`;
+  const armL=`<g transform="rotate(${opt.waveL||0} -140 110)"><rect x="-160" y="100" width="36" height="120" rx="18" fill="${gold2}" stroke="${stroke}" stroke-width="${sw*0.8}"/><circle cx="-142" cy="224" r="27" fill="${A?'#2a2114':cream}" stroke="${A?'#FFD970':ink}" stroke-width="${A?4:8}"/></g>`;
+  return `<svg viewBox="-230 -300 460 600" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;${A?'filter:drop-shadow(0 0 40px rgba(245,197,66,.35)) drop-shadow(0 30px 30px rgba(0,0,0,.6))':'filter:drop-shadow(-14px 14px 0 #16130D)'}">
+   <defs>
+    <linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset=".35" stop-color="#F5C542"/><stop offset=".75" stop-color="#c8900f"/><stop offset="1" stop-color="#8a6410"/></linearGradient>
+    <linearGradient id="${id}g2" x1="0" x2="1"><stop offset="0" stop-color="#a8770d"/><stop offset=".5" stop-color="#ffe08a"/><stop offset="1" stop-color="#a8770d"/></linearGradient>
+    <filter id="${id}glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+   </defs>
+   <!-- antenna -->
+   <path d="M0 -205V-250" stroke="${A?'#c8900f':ink}" stroke-width="10" stroke-linecap="round"/>
+   <circle cx="0" cy="-262" r="20" fill="${A?'#FFD970':'#FF5C39'}" stroke="${stroke}" stroke-width="${sw*0.8}" ${A?`filter="url(#${id}glow)"`:''}/>
+   <!-- legs -->
+   <rect x="-78" y="236" width="50" height="46" rx="14" fill="${A?'#2a2114':ink}"/><rect x="28" y="236" width="50" height="46" rx="14" fill="${A?'#2a2114':ink}"/>
+   ${armL}
+   <!-- body -->
+   <rect x="-126" y="70" width="252" height="180" rx="48" fill="${gold}" stroke="${stroke}" stroke-width="${sw}"/>
+   <rect x="-68" y="112" width="136" height="80" rx="20" fill="${A?'#0b0906':'#fff'}" stroke="${A?'rgba(255,217,112,.5)':ink}" stroke-width="${A?3:7}"/>
+   <text x="0" y="168" text-anchor="middle" font-family="JetBrains Mono" font-weight="700" font-size="46" fill="${A?'#FFD970':ink}">&lt;/&gt;</text>
+   ${armR}
+   <!-- neck -->
+   <rect x="-34" y="44" width="68" height="34" rx="8" fill="${A?'#2a2114':ink}"/>
+   <!-- ears -->
+   <rect x="-210" y="-128" width="42" height="92" rx="14" fill="${ear}" stroke="${stroke}" stroke-width="${sw*0.8}"/>
+   <rect x="168" y="-128" width="42" height="92" rx="14" fill="${ear}" stroke="${stroke}" stroke-width="${sw*0.8}"/>
+   <!-- head -->
+   <rect x="-180" y="-210" width="360" height="262" rx="66" fill="${gold}" stroke="${stroke}" stroke-width="${sw}"/>
+   ${A?'<path d="M-140 -186q60 -18 150 -10" stroke="#fff8dc" stroke-width="10" stroke-linecap="round" opacity=".55" fill="none"/>':''}
+   <rect x="-140" y="-172" width="280" height="190" rx="46" fill="${screen}" ${A?'stroke="rgba(255,217,112,.35)" stroke-width="3"':''}/>
+   ${cheeks}${eyes}${mouth}
+  </svg>`;
+}
+window.robot=robot;
+
+document.getElementById('hero').innerHTML=robot(theme,'happy',{wave:140,id:'hero'});
+const exps=[['normal','عادي'],['talk','يحچي'],['cool','واثق 😎'],['sad','زعلان']];
+document.getElementById('exps').innerHTML=exps.map(([m,l],i)=>`<div class="exp">${robot(theme,m,{id:'e'+i})}<b>${l}</b></div>`).join('');
+const cols= theme==='A' ? ['#F5C542','#b8860b','#FFD970','#070605','#1a150d','#f6efe0'] : ['#FFC93C','#FF5C39','#12B99C','#4361EE','#9B7EDE','#16130D'];
+document.getElementById('swatches').innerHTML=cols.map(c=>`<div class="sw" style="background:${c}"></div>`).join('');
+
+// decorative shapes
+if(theme==='B'){
+  const sh=[['#12B99C',70,640,90,'50%',12],['#FF5C39',930,1080,80,'18px',20],['#4361EE',90,1040,64,'18px',-15],['#9B7EDE',950,470,70,'50%',0]];
+  document.getElementById('deco').innerHTML=sh.map(([c,x,y,s,r,rot])=>`<div class="shape" style="left:${x}px;top:${y}px;width:${s}px;height:${s}px;background:${c};border:6px solid #16130D;border-radius:${r};box-shadow:-7px 7px 0 #16130D;transform:rotate(${rot}deg)"></div>`).join('');
+} else {
+  const g=['{ }','</>','01','=>','//'];
+  document.getElementById('deco').innerHTML=g.map((s,i)=>`<div class="shape mono" style="left:${[70,900,80,930,480][i]}px;top:${[640,1060,1040,470,1140][i]}px;font-size:${40+i*6}px;color:#F5C542;opacity:.18;font-weight:700">${s}</div>`).join('');
+}
+</script>
+</body>
+</html>
