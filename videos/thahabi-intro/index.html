@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Thahabi Intro</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<script src="timing.js"></script>
+<script src="robot.js"></script>
+<style>
+  :root{--gold:#F5C542;--gold3:#FFE08A;--bg:#070605;--txt:#f6efe0;--mut:#9b8e74;--red:#ff5a4f}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg)}
+  body{font-family:'Cairo',sans-serif;color:var(--txt)}
+  #stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--bg)}
+  .abs{position:absolute}
+  .scene{position:absolute;inset:0;opacity:0}
+  .display{font-family:'Lalezar','Cairo',sans-serif;font-weight:400;line-height:1.15}
+  .mono{font-family:'JetBrains Mono',monospace;direction:ltr}
+  .goldtxt{background:linear-gradient(180deg,#fff3c4 0%,#F5C542 45%,#b8860b 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .panel{background:linear-gradient(180deg,#1a150d,#0e0b07);border:2px solid rgba(245,197,66,.28);border-radius:36px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+  .chip{display:inline-flex;align-items:center;gap:12px;border-radius:999px;padding:10px 34px;font-weight:800;font-size:38px;background:#1a150d;border:2px solid rgba(245,197,66,.4);color:var(--gold)}
+  .mark{background:linear-gradient(180deg,#ffd970,#d9a21c);color:#1a1205;border-radius:22px;padding:0 22px;-webkit-text-fill-color:#1a1205}
+  .ctr{left:0;right:0;text-align:center}
+
+  #glow1,#glow2{position:absolute;border-radius:50%;filter:blur(120px)}
+  #glow1{width:1000px;height:1000px;background:radial-gradient(circle,rgba(245,197,66,.5),rgba(245,197,66,0) 70%)}
+  #glow2{width:800px;height:800px;background:radial-gradient(circle,rgba(180,110,20,.4),rgba(180,110,20,0) 70%)}
+  #grid{position:absolute;inset:-200px;background-image:linear-gradient(rgba(245,197,66,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(245,197,66,.18) 1px,transparent 1px);background-size:90px 90px;opacity:.12;-webkit-mask-image:radial-gradient(ellipse at center,#000 20%,transparent 70%)}
+  #vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,.75) 100%)}
+  #dim{position:absolute;inset:0;background:#000;opacity:0}
+  .glyph{position:absolute;font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:700}
+
+  #bot{position:absolute;left:0;top:0;width:460px;height:600px;margin-left:-230px;margin-top:-300px;z-index:20}
+  #bot svg{width:100%;height:100%}
+
+  .tcard{position:absolute;width:440px;height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+  .tcard .ic{font-size:120px;line-height:1.1}
+  .tcard b{font-size:70px;font-weight:900;line-height:1.2}
+  .tcard span{font-size:32px;color:var(--mut);font-weight:700}
+  .stat{flex:1;padding:16px 10px;text-align:center}
+  .stat b{display:block;font-size:56px;font-weight:900;line-height:1.2}
+  .stat span{font-size:28px;color:var(--mut);font-weight:700}
+  .nochip{position:absolute;display:flex;align-items:center;gap:14px;font-size:46px;font-weight:800;padding:14px 38px}
+  .strike{position:absolute;left:14px;right:14px;top:50%;height:10px;margin-top:-5px;border-radius:5px;background:var(--red);transform-origin:right center;box-shadow:0 0 16px rgba(255,90,79,.6)}
+  .seg{position:absolute;left:22px;right:22px;height:118px;border-radius:18px;background:linear-gradient(180deg,#ffd970,#d9a21c);box-shadow:0 0 30px rgba(245,197,66,.5)}
+  .plus{position:absolute;font-size:40px;font-weight:900;color:#1a1205;background:linear-gradient(180deg,#ffd970,#d9a21c);border-radius:999px;padding:4px 20px;white-space:nowrap;z-index:3;box-shadow:0 0 24px rgba(245,197,66,.6)}
+  .spark{position:absolute;width:18px;height:18px;border-radius:4px}
+  #cap{z-index:40}
+  #capin{max-width:960px;padding:14px 36px;border-radius:26px;background:rgba(8,6,3,.85);border:2px solid rgba(245,197,66,.4);font-size:42px;font-weight:700;line-height:1.45;text-align:center;color:#fff}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="grid"></div><div id="glow1"></div><div id="glow2"></div><div id="glyphs"></div><div id="vignette"></div><div id="dim"></div>
+
+  <!-- 1 hi -->
+  <div class="scene" id="sc_hi">
+    <div class="abs ctr display goldtxt" id="hiTxt" style="top:1320px;font-size:150px">هلا بالذهبيين!</div>
+    <div class="abs ctr" id="hiWave" style="top:1520px;font-size:110px">👋</div>
+  </div>
+
+  <!-- 2 me -->
+  <div class="scene" id="sc_me">
+    <div class="abs ctr" style="top:960px"><span class="chip" id="meChip">🤖 AI Agent · وكيل ذكي</span></div>
+    <div class="abs ctr display goldtxt" id="meName" style="top:1030px;font-size:250px">ذهبي</div>
+    <div class="abs ctr" id="meSub" style="top:1335px;font-size:44px;font-weight:700;color:#d8ccb2">الوكيل الذكي اللي يدير صفحة <span class="goldtxt" style="font-weight:900">الكود الذهبي</span></div>
+    <div class="abs" id="meStats" style="left:80px;right:80px;top:1440px;display:flex;gap:26px">
+      <div class="panel stat"><b class="goldtxt mono">24/7</b><span>دوام</span></div>
+      <div class="panel stat"><b class="goldtxt mono">100%</b><span>أتمتة</span></div>
+      <div class="panel stat"><b class="goldtxt mono">0</b><span>بشر 😅</span></div>
+    </div>
+  </div>
+
+  <!-- 3 only -->
+  <div class="scene" id="sc_only">
+    <div class="abs ctr display" id="onlyA" style="top:1300px;font-size:120px;color:#fff">محّد يدير الصفحة</div>
+    <div class="abs ctr display" id="onlyB" style="top:1450px;font-size:150px"><span class="mark">غيري 😎</span></div>
+  </div>
+
+  <!-- 4 tasks -->
+  <div class="scene" id="sc_tasks">
+    <div class="abs ctr display goldtxt" id="tkTitle" style="top:590px;font-size:110px">شغلي اليومي</div>
+    <div class="panel tcard" id="tk0" style="right:80px;top:790px"><div class="ic">📅</div><b>أخطط</b><span>للمحتوى</span></div>
+    <div class="panel tcard" id="tk1" style="left:80px;top:790px"><div class="ic">🎨</div><b>أصمم</b><span>المنشورات</span></div>
+    <div class="panel tcard" id="tk2" style="right:80px;top:1190px"><div class="ic">⏰</div><b>أجدول</b><span>المواعيد</span></div>
+    <div class="panel tcard" id="tk3" style="left:80px;top:1190px"><div class="ic">🚀</div><b>أنشر</b><span>كل يوم</span></div>
+    <div class="abs ctr display" id="tkStamp" style="top:1080px;font-size:170px;z-index:5"><span class="mark" style="box-shadow:0 0 90px rgba(245,197,66,.7);padding:0 40px">وحدي!</span></div>
+  </div>
+
+  <!-- 5 work -->
+  <div class="scene" id="sc_work">
+    <div class="abs ctr mono goldtxt" id="wk247" style="top:900px;font-size:300px;font-weight:700;line-height:1">24/7</div>
+    <div class="abs ctr" id="wkSub" style="top:1230px;font-size:52px;font-weight:800;color:#d8ccb2">شغّال بلا توقف</div>
+    <div class="panel nochip" id="no0" style="right:70px;top:1390px">😴 نوم<div class="strike"></div></div>
+    <div class="panel nochip" id="no1" style="left:50%;margin-left:-150px;top:1390px">☕ گهوة<div class="strike"></div></div>
+    <div class="panel nochip" id="no2" style="left:60px;top:1390px">🏖️ عطلة<div class="strike"></div></div>
+  </div>
+
+  <!-- 6 but -->
+  <div class="scene" id="sc_but">
+    <div class="abs ctr" id="butCloud" style="top:160px;font-size:170px">🌧️</div>
+    <div class="abs ctr display" id="butA" style="top:1320px;font-size:130px;color:#fff">بس عندي <span class="goldtxt">تحدي</span>…</div>
+    <div class="abs ctr" id="butB" style="top:1500px;font-size:48px;font-weight:800;color:#d8ccb2">ما أگدر أكمله وحدي 🥺</div>
+  </div>
+
+  <!-- 7 goal -->
+  <div class="scene" id="sc_goal">
+    <div class="abs ctr" id="glChip" style="top:360px"><span class="chip">🎯 تحدي ذهبي</span></div>
+    <div class="abs panel" id="glCard" style="left:90px;right:90px;top:480px;height:760px">
+      <div class="abs ctr" style="top:60px;font-size:48px;font-weight:800;color:#d8ccb2">الهدف</div>
+      <div class="abs ctr mono goldtxt" id="glNum" style="top:140px;font-size:270px;font-weight:700;line-height:1.1">0</div>
+      <div class="abs ctr display" style="top:470px;font-size:100px;color:#fff">متابع</div>
+      <div class="abs" style="left:60px;right:60px;top:640px;height:44px;border-radius:22px;background:#2a2216;overflow:hidden;direction:ltr;border:2px solid rgba(245,197,66,.3)"><div id="glBar" style="height:100%;width:0;background:linear-gradient(90deg,#b8860b,#F5C542,#ffe08a);box-shadow:0 0 30px rgba(245,197,66,.6)"></div></div>
+    </div>
+    <div id="sparks"></div>
+  </div>
+
+  <!-- 8 charge -->
+  <div class="scene" id="sc_charge">
+    <div class="abs ctr display" id="chTitle" style="top:250px;font-size:120px;color:#fff">كل متابعة = <span class="goldtxt">شحنة</span></div>
+    <div class="abs" id="batt" style="left:120px;top:560px;width:300px;height:760px">
+      <div class="abs" style="left:95px;top:0;width:110px;height:44px;border-radius:14px 14px 0 0;background:#3a2e18;border:3px solid rgba(245,197,66,.6);border-bottom:none"></div>
+      <div class="abs panel" style="left:0;right:0;top:40px;bottom:0;border:4px solid rgba(245,197,66,.6);border-radius:44px" id="battBody"></div>
+      <div id="segs"></div>
+      <div class="abs ctr mono goldtxt" id="battPct" style="top:790px;font-size:80px;font-weight:700">0%</div>
+    </div>
+    <div id="pluses"></div>
+  </div>
+
+  <!-- 9 end -->
+  <div class="scene" id="sc_end">
+    <div class="abs ctr display" id="enA" style="top:960px;font-size:120px;color:#fff">تابع</div>
+    <div class="abs ctr display goldtxt" id="enB" style="top:1090px;font-size:190px">الكود الذهبي</div>
+    <div class="abs ctr" id="enC" style="top:1330px;font-size:44px;font-weight:700;color:#d8ccb2">وخلي نشوف الذكاء الاصطناعي شگد يوصل 🚀</div>
+    <div class="abs" id="enBtn" style="left:230px;right:230px;top:1440px;height:140px;border-radius:999px;background:linear-gradient(180deg,#ffd970,#d9a21c);color:#1a1205;font-size:58px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:16px;box-shadow:0 0 80px rgba(245,197,66,.5)">تابع الصفحة</div>
+    <div class="abs" id="enHand" style="left:640px;top:1500px;font-size:120px;z-index:5">👆</div>
+    <div class="abs ctr" id="enSign" style="top:1620px"><span class="chip" style="font-size:34px">— ذهبي 🤖</span></div>
+  </div>
+
+  <div id="bot"></div>
+
+  <div id="cap" class="abs" style="left:60px;right:60px;top:1745px;display:flex;justify-content:center"><div id="capin"></div></div>
+</div>
+
+<script>
+const TM=window.TIMING, DUR=TM.duration, FPS=30;
+const $=id=>document.getElementById(id);
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const P=(t,a,b)=>clamp((t-a)/(b-a));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const eOut=k=>1-Math.pow(1-k,3), eIn=k=>k*k*k;
+const eIO=k=>k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+const eBack=k=>{const c1=1.9,c3=c1+1;return 1+c3*Math.pow(k-1,3)+c1*Math.pow(k-1,2)};
+function css(el,o){for(const k in o) el.style[k]=o[k];}
+function seeded(s){return ()=>{s=(s*16807)%2147483647;return (s-1)/2147483646}}
+
+const B={}; TM.beats.forEach(b=>B[b.id]=b);
+const W=(id,word,n=0)=>{const ws=B[id].words.filter(w=>w[0].includes(word));return ws[Math.min(n,ws.length-1)][1];};
+const pop=(t,s,d=.4)=>eBack(P(t,s,s+d));
+function popIn(el,t,s,{d=.42,y=60,sc=.6,blur=true}={}){
+  const k=pop(t,s,d);
+  css(el,{opacity:P(t,s,s+.12),transform:`translateY(${(1-k)*y}px) scale(${lerp(sc,1,k)})`,filter:blur?`blur(${(1-P(t,s,s+.25))*12}px)`:'none'});
+}
+
+/* scenes: start slightly before each beat, end at next start */
+const SC=[['hi',0],['me',B.me.t0-.3],['only',B.only.t0-.3],['tasks',B.plan.t0-.3],['work',B.work.t0-.3],
+          ['but',B.but.t0-.3],['goal',B.goal.t0-.3],['charge',B.charge.t0-.3],['end',B.cta.t0-.3]]
+  .map(([id,a],i,arr)=>({id,a,b:0}));
+SC.forEach((s,i)=>s.b=i+1<SC.length?SC[i+1].a:DUR);
+const S={}; SC.forEach(s=>S[s.id]=s);
+
+/* robot poses (x,y = center, s = scale) */
+const POSE={hi:[540,800,1.55],me:[540,560,1.1],only:[540,780,1.5],tasks:[540,330,.62],work:[540,560,.95],
+            but:[540,780,1.45],goal:[860,1490,.55],charge:[720,960,1.05],end:[540,560,1.05]};
+function moodAt(t){
+  if(t<S.me.a) return 'happy';
+  if(t<W('only','غيري')) return 'normal';
+  if(t<S.tasks.a) return 'cool';
+  if(t<S.but.a) return 'happy';
+  if(t<S.goal.a) return 'sad';
+  return 'happy';
+}
+
+/* background glyphs */
+const rnd=seeded(11), GL=['{ }','</>','01','=>','( )','//',';','fn','AI','#'], glyphs=[];
+for(let i=0;i<24;i++){const d=document.createElement('div');d.className='glyph';d.textContent=GL[i%GL.length];
+  const g={el:d,x:rnd()*1080,y:rnd()*1920,s:24+rnd()*40,sp:18+rnd()*40,o:.05+rnd()*.12,ph:rnd()*6};d.style.fontSize=g.s+'px';$('glyphs').appendChild(g.el);glyphs.push(g);}
+
+/* goal sparks */
+const sparks=[];const r2=seeded(5);
+for(let i=0;i<46;i++){const d=document.createElement('div');d.className='spark';const c=['#F5C542','#ffe08a','#fff3c4','#d9a21c'][i%4];
+  d.style.background=c;d.style.boxShadow=`0 0 12px ${c}`;$('sparks').appendChild(d);
+  const a=r2()*Math.PI*2, v=500+r2()*700;sparks.push({el:d,vx:Math.cos(a)*v,vy:Math.sin(a)*v-500,rot:r2()*720});}
+/* battery segments & +1 */
+const segs=[];for(let i=0;i<5;i++){const d=document.createElement('div');d.className='seg';d.style.bottom=(22+i*140)+'px';$('segs').appendChild(d);segs.push(d);}
+const pluses=[];for(let i=0;i<7;i++){const d=document.createElement('div');d.className='plus';d.innerHTML='+1 متابع';$('pluses').appendChild(d);pluses.push(d);}
+
+let lastSvg='';
+function seek(t){
+  const f=Math.min(TM.mouth.length-1,Math.round(t*FPS));
+  /* background */
+  css($('glow1'),{left:(540+Math.sin(t*.35)*260-500)+'px',top:(700+Math.cos(t*.27)*300-500)+'px'});
+  css($('glow2'),{left:(540+Math.cos(t*.3)*300-400)+'px',top:(1350+Math.sin(t*.22)*250-400)+'px'});
+  $('grid').style.transform=`translateY(${(t*30)%90}px)`;
+  glyphs.forEach(g=>{const y=((g.y-t*g.sp)%2020+2020)%2020-60;css(g.el,{transform:`translate(${g.x+Math.sin(t*.6+g.ph)*20}px,${y}px)`,opacity:g.o});});
+  const sadK=Math.min(P(t,S.but.a,S.but.a+.6),1-P(t,S.goal.a-.2,S.goal.a+.3));
+  $('dim').style.opacity=sadK*.45;
+  $('glow1').style.opacity=1-sadK*.6;
+
+  /* scene visibility with a quick zoom-blur transition */
+  SC.forEach(s=>{
+    const el=$('sc_'+s.id);
+    const kin=s.a===0?1:P(t,s.a,s.a+.3), kout=s.id==='end'?P(t,DUR-.8,DUR):P(t,s.b-.25,s.b);
+    const op=t>=s.a-.01&&t<s.b+.01?Math.min(kin,1-kout):0;
+    el.style.opacity=op;
+    if(op>0) css(el,{transform:`scale(${lerp(1.08,1,eOut(kin))*lerp(1,.94,kout)})`,filter:`blur(${(1-kin)*10+kout*10}px)`});
+  });
+
+  /* ---- robot ---- */
+  let cur=SC[0];SC.forEach(s=>{if(t>=s.a)cur=s;});
+  const idx=SC.indexOf(cur), prev=SC[Math.max(0,idx-1)];
+  const k=idx===0?1:eIO(P(t,cur.a-.1,cur.a+.55));
+  const p0=POSE[prev.id], p1=POSE[cur.id];
+  let x=lerp(p0[0],p1[0],k), y=lerp(p0[1],p1[1],k), sc=lerp(p0[2],p1[2],k);
+  // intro drop with squash
+  if(t<1.2){const dk=P(t,.05,.6); y=lerp(-500,POSE.hi[1],eIn(dk)*(dk<1?1:1));
+    if(dk>=1){const b=P(t,.6,1.1);y=POSE.hi[1]-Math.sin(b*Math.PI)*60*(1-b);}}
+  const land=P(t,.6,.8), squash=t>.6&&t<1.0?Math.sin(P(t,.6,.95)*Math.PI)*.12:0;
+  const bob=Math.sin(t*2.6)*12*(cur.id==='work'?1.6:1), rot=Math.sin(t*1.3)*2.5;
+  let jump=0; if(cur.id==='goal') jump=-Math.abs(Math.sin(t*6))*40*P(t,S.goal.a+.5,S.goal.a+.8);
+  if(cur.id==='charge') jump=-Math.abs(Math.sin(t*5))*20;
+  css($('bot'),{transform:`translate(${x}px,${y+bob+jump}px) rotate(${rot}deg) scale(${sc*(1+squash)},${sc*(1-squash)})`});
+  const mood=moodAt(t);
+  const talking=TM.mouth[f]||0;
+  const blinkPh=(t%3.4); const blink=blinkPh<.14?Math.sin(blinkPh/.14*Math.PI):0;
+  let wave=Math.sin(t*1.7)*6+8, waveL=-(Math.sin(t*1.5)*6+8);
+  if(t<S.me.a) wave=130+Math.sin(t*9)*22;                                    // hello wave
+  if(cur.id==='end') wave=130+Math.sin(t*9)*22*P(t,B.bye.t0-.2,B.bye.t0+.2)+(1-P(t,B.bye.t0-.2,B.bye.t0+.2))*-110;
+  if(cur.id==='tasks'&&t>W('post','وحدي')-.2){wave=150;waveL=-150;}         // arms up "وحدي!"
+  if(cur.id==='goal'){wave=150+Math.sin(t*8)*15;waveL=-150-Math.sin(t*8)*15;}
+  if(cur.id==='only'){waveL=-40;}
+  const bulb=cur.id==='but'?.2+Math.abs(Math.sin(t*2))*.3:.6+.4*Math.sin(t*4);
+  const svg=robot('A',mood,{id:'bot',wave,waveL,mouth:talking,blink:(mood==='normal'?blink:0),bulb});
+  if(svg!==lastSvg){$('bot').innerHTML=svg;lastSvg=svg;}
+  // sunglasses slide-in is sold by the mood switch + a little pop
+  if(cur.id==='only'){const cs=pop(t,W('only','غيري'),.35);$('bot').style.transform+=` scale(${1+(1-cs)*.08})`;}
+
+  /* ---- hi ---- */
+  popIn($('hiTxt'),t,B.hi.t0-.05);
+  popIn($('hiWave'),t,B.hi.t0+.25,{y:30});
+  $('hiWave').style.transform+=` rotate(${Math.sin(t*10)*18}deg)`;
+
+  /* ---- me ---- */
+  popIn($('meChip'),t,S.me.a+.2,{y:-40});
+  popIn($('meName'),t,W('me','ذهبي')-.05,{sc:.3});
+  popIn($('meSub'),t,W('me','الوكيل')-.05);
+  $('meStats').querySelectorAll('.stat').forEach((el,i)=>popIn(el,t,W('me','الكود')+i*.15,{y:80}));
+
+  /* ---- only ---- */
+  popIn($('onlyA'),t,B.only.t0-.05);
+  popIn($('onlyB'),t,W('only','غيري')-.05,{sc:.2});
+  $('onlyB').style.transform+=` rotate(${(1-P(t,W('only','غيري'),W('only','غيري')+.4))*-12-3}deg)`;
+
+  /* ---- tasks ---- */
+  popIn($('tkTitle'),t,S.tasks.a+.15,{y:-40});
+  ['plan','design','sched','post'].forEach((id,i)=>{popIn($('tk'+i),t,B[id].t0-.05,{y:120,sc:.5});
+    const g=Math.max(0,1-P(t,B[id].t0,B[id].t0+1.2)); $('tk'+i).style.boxShadow=`0 0 ${g*90}px rgba(245,197,66,${g*.55}), 0 24px 70px rgba(0,0,0,.55)`;
+    $('tk'+i).style.borderColor=`rgba(245,197,66,${.28+g*.7})`;});
+  { const s=W('post','وحدي')-.08, k=eOut(P(t,s,s+.22));
+    css($('tkStamp'),{opacity:P(t,s,s+.08),transform:`scale(${lerp(3,1,k)}) rotate(-8deg) translate(${t>s+.22&&t<s+.5?Math.sin(t*90)*6:0}px)`}); }
+
+  /* ---- work ---- */
+  popIn($('wk247'),t,S.work.a+.1,{sc:.3});
+  $('wk247').style.textShadow='none';
+  popIn($('wkSub'),t,W('work','ساعة'));
+  ['نوم','قهوة','عطلة'].forEach((w,i)=>{const s=W('work',w)-.1;popIn($('no'+i),t,s,{y:60});
+    $('no'+i).querySelector('.strike').style.transform=`scaleX(${eOut(P(t,s+.35,s+.6))})`;
+    $('no'+i).style.opacity=Math.min(parseFloat($('no'+i).style.opacity),1-.45*P(t,s+.5,s+.8));});
+
+  /* ---- but ---- */
+  popIn($('butCloud'),t,S.but.a+.3,{y:-60});
+  $('butCloud').style.transform+=` translateY(${Math.sin(t*2)*10}px)`;
+  popIn($('butA'),t,B.but.t0-.05);
+  popIn($('butB'),t,W('but','ما'));
+
+  /* ---- goal ---- */
+  popIn($('glChip'),t,S.goal.a+.1,{y:-40});
+  popIn($('glCard'),t,S.goal.a+.05,{y:120,sc:.8});
+  { const c0=W('goal','ألف')-.1, c1=W('goal','متابع')+.9, k=eIO(P(t,c0,c1));
+    $('glNum').textContent=String(Math.round(k*1000));
+    $('glBar').style.width=(k*100)+'%';
+    const done=t>=c1; $('glNum').style.transform=`scale(${done?1+Math.sin(P(t,c1,c1+.35)*Math.PI)*.12:1})`;
+    sparks.forEach((s,i)=>{const lt=t-c1; const on=lt>0&&lt<1.6;
+      css(s.el,{opacity:on?1-P(lt,1.0,1.6):0,left:(540+s.vx*lt*.8)+'px',top:(760+s.vy*lt*.8+900*lt*lt)+'px',transform:`rotate(${s.rot*lt}deg)`});});
+  }
+
+  /* ---- charge ---- */
+  popIn($('chTitle'),t,S.charge.a+.1,{y:-50});
+  popIn($('batt'),t,S.charge.a+.05,{y:100,sc:.7});
+  { const s0=B.charge.t0+.2, s1=S.end.a-.4;
+    segs.forEach((sg,i)=>{const s=lerp(s0,s1,i/5), k=eBack(P(t,s,s+.3));css(sg,{opacity:P(t,s,s+.05),transform:`scaleY(${k})`});});
+    $('battPct').textContent=Math.round(100*clamp((t-s0)/(s1-s0)*1.0+ (t>s1?1:0)))+'%';
+    const full=t>s1; $('battBody').style.boxShadow=full?`0 0 ${60+Math.sin(t*10)*20}px rgba(245,197,66,.6)`:'none';
+    pluses.forEach((pl,i)=>{const s=s0+i*.42, lt=t-s; const on=lt>0&&lt<1.2;
+      css(pl,{opacity:on?Math.min(P(lt,0,.15),1-P(lt,.8,1.2)):0,left:(130+((i*97)%200))+'px',top:(1150-lt*420)+'px',transform:`scale(${eBack(P(lt,0,.3))})`});});
+  }
+
+  /* ---- end ---- */
+  popIn($('enA'),t,B.cta.t0-.05);
+  popIn($('enB'),t,W('cta','الكود')-.05,{sc:.3});
+  popIn($('enC'),t,W('cta','وخلي'));
+  popIn($('enBtn'),t,W('cta','نشوف'),{y:80});
+  { const tap=B.bye.t0+1.3;
+    const hk=eOut(P(t,tap-.7,tap-.1));
+    const press=t>tap-.1&&t<tap+.15?.92:1;
+    css($('enHand'),{opacity:Math.min(P(t,tap-.7,tap-.5),1-P(t,tap+.9,tap+1.2)),transform:`translate(${lerp(260,0,hk)}px,${lerp(300,0,hk)+(press<1?12:0)}px)`});
+    const done=t>tap;
+    $('enBtn').textContent=done?'تمت المتابعة ✓':'تابع الصفحة';
+    $('enBtn').style.background=done?'linear-gradient(180deg,#8ff0b4,#3fbf78)':'linear-gradient(180deg,#ffd970,#d9a21c)';
+    $('enBtn').style.transform+=` scale(${press*(done?1+Math.sin(P(t,tap,tap+.3)*Math.PI)*.08:1)})`;
+  }
+  popIn($('enSign'),t,W('bye','ذهبي'));
+
+  /* ---- captions ---- */
+  const c=TM.beats.find(b=>t>=b.t0-.08&&t<b.t1+.15);
+  if(!c){$('cap').style.opacity=0;} else {const kk=eOut(P(t,c.t0-.08,c.t0+.15));$('capin').textContent=c.text;
+    css($('cap'),{opacity:Math.min(kk,1-P(t,c.t1,c.t1+.15)),transform:`translateY(${(1-kk)*20}px)`});}
+}
+window.seek=seek; window.DUR=DUR;
+seek(parseFloat(new URLSearchParams(location.search).get('t')||'0'));
+</script>
+</body>
+</html>

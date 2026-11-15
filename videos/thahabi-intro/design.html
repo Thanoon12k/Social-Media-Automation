@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Thahabi Character Sheet</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1920px;overflow:hidden}
+  body{font-family:'Cairo',sans-serif}
+  .mono{font-family:'JetBrains Mono',monospace;direction:ltr}
+  #stage{position:relative;width:1080px;height:1920px;overflow:hidden}
+
+  /* ---------- Theme A: Golden dark (first video style) ---------- */
+  .A{background:#070605;color:#f6efe0}
+  .A #bg{position:absolute;inset:0;background:
+      radial-gradient(circle at 50% 30%,rgba(245,197,66,.35),transparent 55%),
+      radial-gradient(circle at 20% 85%,rgba(180,110,20,.25),transparent 50%)}
+  .A #bg::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(245,197,66,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(245,197,66,.18) 1px,transparent 1px);background-size:90px 90px;opacity:.12;-webkit-mask-image:radial-gradient(ellipse at center,#000 20%,transparent 70%)}
+  .A .title{background:linear-gradient(180deg,#fff3c4 0%,#F5C542 45%,#b8860b 100%);-webkit-background-clip:text;background-clip:text;color:transparent;font-family:'Lalezar','Cairo';font-weight:400}
+  .A .panel{background:linear-gradient(180deg,#1a150d,#0e0b07);border:2px solid rgba(245,197,66,.28);border-radius:34px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .A .chip{background:#1a150d;border:2px solid rgba(245,197,66,.35);color:#F5C542}
+  .A .mark{background:linear-gradient(180deg,#ffd970,#d9a21c);color:#1a1205;border-radius:18px;padding:0 18px}
+  .A .dim{color:#9b8e74}
+  .A .sw{border:2px solid rgba(255,255,255,.15)}
+
+  /* ---------- Theme B: Website neo-brutalist ---------- */
+  .B{background:#FFF6EA;color:#16130D}
+  .B #bg{position:absolute;inset:0;background-image:radial-gradient(#16130D 2.4px,transparent 3px);background-size:46px 46px;opacity:.09}
+  .B .title{font-weight:900;color:#16130D}
+  .B .panel{background:#fff;border:6px solid #16130D;border-radius:38px;box-shadow:-14px 14px 0 #16130D}
+  .B .chip{background:#fff;border:5px solid #16130D;color:#16130D;box-shadow:-6px 6px 0 #16130D}
+  .B .mark{background:#FFC93C;color:#16130D;border:6px solid #16130D;border-radius:22px;padding:0 20px;box-shadow:-8px 8px 0 #16130D}
+  .B .dim{color:#5C554A}
+  .B .mark.small{border-width:4px;box-shadow:-4px 4px 0 #16130D}
+  .mark.small{font-size:26px;padding:0 10px}
+  .B .sw{border:5px solid #16130D;box-shadow:-5px 5px 0 #16130D}
+
+  .abs{position:absolute}
+  .chip{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:8px 30px;font-weight:800;font-size:34px}
+  .row{display:flex;gap:26px;justify-content:center}
+  .exp{width:230px;height:290px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:18px}
+  .exp svg{width:190px;height:220px}
+  .exp b{font-size:30px;font-weight:800;margin-top:4px}
+  .sw{width:92px;height:92px;border-radius:24px}
+  .shape{position:absolute}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <div id="deco"></div>
+
+  <div class="abs" style="left:0;right:0;top:80px;text-align:center"><span class="chip" id="tag"></span></div>
+  <div class="abs title" id="name" style="left:0;right:0;top:170px;text-align:center;font-size:190px;line-height:1.1">ذهبي</div>
+  <div class="abs dim" style="left:0;right:0;top:420px;text-align:center;font-size:40px;font-weight:700">الوكيل الذكي اللي يدير صفحة الكود الذهبي</div>
+
+  <div class="abs" id="hero" style="left:50%;top:480px;width:560px;height:680px;margin-left:-280px"></div>
+
+  <div class="abs panel" id="bubble" style="right:40px;top:540px;padding:22px 32px;font-size:40px;font-weight:800;max-width:420px;white-space:nowrap;line-height:1.4">هلا بالذهبيين! 👋</div>
+
+  <div class="abs panel" style="left:50px;right:50px;top:1190px;padding:26px 20px 30px">
+    <div style="text-align:center;font-size:38px;font-weight:900;margin-bottom:10px">التعابير</div>
+    <div class="row" id="exps"></div>
+  </div>
+
+  <div class="abs panel" style="left:50px;right:50px;top:1620px;height:240px;padding:26px 36px;display:flex;align-items:center;gap:30px">
+    <div style="flex:1">
+      <div style="font-size:36px;font-weight:900">الشخصية</div>
+      <div class="dim" style="font-size:28px;font-weight:600;line-height:1.55">خفيف دم، فخور بنفسه شوية، يحچي عراقي، ويسمّي متابعينه <span class="mark small">الذهبيين</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,92px);gap:14px" id="swatches"></div>
+  </div>
+</div>
+
+<script src="robot.js"></script>
+<script>
+const theme=(new URLSearchParams(location.search).get('theme')||'A').toUpperCase();
+document.body.className=theme;
+document.getElementById('tag').textContent= theme==='A' ? '🤖 AI Agent · وكيل ذكي' : '🤖 وكيل ذكي · AI Agent';
+
+
+
+document.getElementById('hero').innerHTML=robot(theme,'happy',{wave:140,id:'hero'});
+const exps=[['normal','عادي'],['talk','يحچي'],['cool','واثق 😎'],['sad','زعلان']];
+document.getElementById('exps').innerHTML=exps.map(([m,l],i)=>`<div class="exp">${robot(theme,m,{id:'e'+i})}<b>${l}</b></div>`).join('');
+const cols= theme==='A' ? ['#F5C542','#b8860b','#FFD970','#070605','#1a150d','#f6efe0'] : ['#FFC93C','#FF5C39','#12B99C','#4361EE','#9B7EDE','#16130D'];
+document.getElementById('swatches').innerHTML=cols.map(c=>`<div class="sw" style="background:${c}"></div>`).join('');
+
+// decorative shapes
+if(theme==='B'){
+  const sh=[['#12B99C',70,640,90,'50%',12],['#FF5C39',930,1080,80,'18px',20],['#4361EE',90,1040,64,'18px',-15],['#9B7EDE',950,470,70,'50%',0]];
+  document.getElementById('deco').innerHTML=sh.map(([c,x,y,s,r,rot])=>`<div class="shape" style="left:${x}px;top:${y}px;width:${s}px;height:${s}px;background:${c};border:6px solid #16130D;border-radius:${r};box-shadow:-7px 7px 0 #16130D;transform:rotate(${rot}deg)"></div>`).join('');
+} else {
+  const g=['{ }','</>','01','=>','//'];
+  document.getElementById('deco').innerHTML=g.map((s,i)=>`<div class="shape mono" style="left:${[70,900,80,930,480][i]}px;top:${[640,1060,1040,470,1140][i]}px;font-size:${40+i*6}px;color:#F5C542;opacity:.18;font-weight:700">${s}</div>`).join('');
+}
+</script>
+</body>
+</html>
